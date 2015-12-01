@@ -1,0 +1,90 @@
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+  font-family: 'Open Sans', sans-serif;
+  -ms-word-wrap: break-word;
+  word-wrap: break-word;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 80px;
+  background-color: #f5f5f5;
+}
+
+body > .container {
+  padding: 60px 15px 0;
+}
+
+.container .text-muted {
+  margin: 20px 0;
+}
+
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.post-preview-header {
+  background-color: #f5f5f5;
+  padding-left: 10px;
+  border-radius: 4px;
+  vertical-align: baseline;
+  border: 1px solid #e3e3e3;
+}
+
+.post-preview-content {
+  padding: 10px;
+}
+
+.form-login {
+  max-width: 400px;
+}
+
+.margin-top-10 {
+  margin-top: 10px;
+}
+
+.margin-top-15 {
+  margin-top: 15px;
+}
+
+.padding-top-10 {
+  padding-top: 10px;
+}
+
+#myLinks a {
+  color: black;
+}
+
+.hr-side-bar {
+  border: 0;
+  height: 0;
+  margin: 5px 5px 3px 3px;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+#postMain {
+  font-size: large;
+}
+
+.well {
+  padding-top: 5px;
+}
+
+#postMain {
+  padding: 10px;
+}
+
+.link-tag {
+  text-decoration: none !important;
+}

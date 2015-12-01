@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block left_content %}
+<!-- left content column start -->
+  <div>
+    <h1 class="page-header">
+      {{ config['BLOG_NAME'] }}
+      <small>{{ config['BLOG_DESCRIPTION'] }}</small>
+    </h1>
+  </div>
+
+  {% include 'messages.html' %}
+
+  <!-- Blog Post -->
+  <table class="table">
+    <tbody>
+    {% for cat in config['categories'] %}
+      {% if not cat.parent_id %}
+        <tr>
+          <td>
+            <a href="{{ url_for('edit_post', post_id=cat.id )}}">{{ cat.name }}</a>
+            {% for child in cat.children %}
+              {{ child.name }}
+            {% endfor %}
+          </td>
+        </tr>
+      {% endif %}
+    {% endfor %}
+    </tbody>
+  </table>
+<!-- left content column end -->
+{% endblock %}

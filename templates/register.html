@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block page_title %}{{ config['REGISTRATION'] }}{% endblock %}
+
+{% block left_content %}
+<!-- left content column start -->
+  <div class="row">
+    <h1 class="page-header">
+      {{ config['REGISTRATION'] }}
+      <small>{{ config['REGISTRATION_PAGE_DESCRIPTION'] }}</small>
+    </h1>
+  </div>
+
+  {% include 'messages.html' %}
+
+  <div class="row form-group">
+    <form method="post" id="loginForm" role="form">
+      {% for field in form %}
+        {% if field.name == 'csrf_token' %}
+          {{ field }}
+        {% else %}
+          <div class="col-md-6">
+            {{ field.label(class="control-label margin-top-10") }}
+          </div>
+          <div class="row"></div>
+          <div class="col-md-6">
+            {% if field.nullable %}
+            {{ field(class="form-control") }}
+            {% else %}
+            {{ field(class="form-control", required="") }}
+            {% endif %}
+          </div>
+          {% if field.errors %}
+            <div class="col-md-6">
+              {% for error in field.errors %}
+                <span class="text-danger">{{ error }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+          <div class="row"></div>
+        {% endif %}
+      {% endfor %}
+      <div class="col-md-6">
+        <input type="submit" id="submit" name="submit" class="btn btn-primary btn-block pull-right margin-top-15">
+      </div>
+    </form>
+  </div>
+<!-- left content column end -->
+{% endblock %}
