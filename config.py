@@ -18,8 +18,6 @@ POSTS_PER_PAGE = 10
 
 MIN_PASSWORD_LENGTH = 8
 
-DEBUG = True
-
 # global strings
 ABOUT_TITLE = 'About'
 BLOG_NAME = 'Crayon Kingdom'

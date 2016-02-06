@@ -3,5 +3,7 @@ __pycache__*
 *.pyc
 log/
 blog/
+venv/
+.idea/
 *uwsgi*.ini
 *uwsgi*.sock

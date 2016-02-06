@@ -21,20 +21,20 @@ Session = sessionmaker(bind=db)
 db_session = Session()
 app.db_session = db_session
 
-# create tag dictionary for app-wide use
-all_tags = db_session.query(Tag).all()
-
 
 # for debug purpose
 def init_db():
     Base.metadata.create_all(bind=db)
 
-# try:
-#     db_session.query(Post).all()
-#     db_session.query(User).all()
-#     db_session.query(Category).all()
-# except:
-#     init_db()
+try:
+    db_session.query(Post).all()
+    db_session.query(User).all()
+    db_session.query(Category).all()
+except:
+    init_db()
+
+# create tag dictionary for app-wide use
+all_tags = db_session.query(Tag).all()
 
 
 # get some global objects
@@ -184,4 +184,4 @@ def about():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=7000, debug=app.config['DEBUG'])
+    app.run(host=app.config['SERVER_ADDRESS'], port=app.config['SERVER_PORT'], debug=app.config['DEBUG'])
