@@ -2,13 +2,17 @@ from local_settings import *
 
 
 ##################################################
-#         local_settings.py example              #
+#         local_settings.py example
 #
 # DB_USER_NAME = 'user'
 # DB_PASSWORD = 'password'
 # DB_HOST_NAME = 'localhost'
 # DB_DATABASE_NAME = 'database'
 # DB_CHARSET = 'utf8'
+# SERVER_ADDRESS = '0.0.0.0'
+# SERVER_PORT = 7000
+# DEBUG = True
+#
 ##################################################
 
 CONNECTION_STRING = 'mysql+pymysql://' + DB_USER_NAME + ':' + DB_PASSWORD + \
