@@ -1,5 +1,19 @@
 from local_settings import *
 
+
+##################################################
+#         local_settings.py example              #
+#
+# DB_USER_NAME = 'user'
+# DB_PASSWORD = 'password'
+# DB_HOST_NAME = 'localhost'
+# DB_DATABASE_NAME = 'database'
+# DB_CHARSET = 'utf8'
+##################################################
+
+CONNECTION_STRING = 'mysql+pymysql://' + DB_USER_NAME + ':' + DB_PASSWORD + \
+                    '@' + DB_HOST_NAME + '/' + DB_DATABASE_NAME + '?charset=' + DB_CHARSET
+
 POSTS_PER_PAGE = 10
 
 MIN_PASSWORD_LENGTH = 8

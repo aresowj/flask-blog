@@ -16,7 +16,7 @@ app.secret_key = app.config['SECRET_KEY']
 app.config.from_object(config)
 
 # initialize database connection
-db = create_engine(app.config['CONNECTION_STRING'], echo=True)
+db = create_engine(app.config['CONNECTION_STRING'], encoding=app.config['DB_CHARSET'], echo=True)
 Session = sessionmaker(bind=db)
 db_session = Session()
 app.db_session = db_session
