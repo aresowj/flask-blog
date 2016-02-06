@@ -2,6 +2,6 @@ local_settings.py
 __pycache__*
 *.pyc
 log/
-blog/
+venv/
 *uwsgi*.ini
 *uwsgi*.sock
