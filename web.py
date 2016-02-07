@@ -107,10 +107,10 @@ def edit_post(post_id=None):
         post.tags = []
         for tag in tags:
             # if the tag is new and not created before, insert it into tags table
-            if tag not in app.post_tags:
+            if tag not in app.config['post_tags']:
                 new_tag = Tag(name=tag)
                 post.tags.append(new_tag)
-                app.post_tags[new_tag.name] = new_tag.id
+                app.config['post_tags'][new_tag.name] = new_tag.id
             else:
                 post.tags.append(db_session.query(Tag).filter(Tag.name == tag).first())
         if not post.author_id:  # insert author id for new posts
