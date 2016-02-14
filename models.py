@@ -27,7 +27,7 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
 
     def get_user(self, user_id=None):
-        pass
+        raise NotImplementedError
 
     def update_user(self):
         db = current_app.db_session
@@ -38,6 +38,10 @@ class User(Base):
             db.add(self)
             db.commit()
             return True
+        else:
+            # has user id, updating existing user
+            # update user record with id here, only touch the fields modified
+            raise NotImplementedError
 
     @staticmethod
     def login(form):

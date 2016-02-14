@@ -63,7 +63,7 @@ def posts_list(page=None):
     posts, total_count = Post.get_posts(app.config['POSTS_PER_PAGE'], (page - 1) * app.config['POSTS_PER_PAGE'])
     pagination = Pagination(page, app.config['POSTS_PER_PAGE'], total_count)
 
-    return render_template('posts_manage.html', posts=posts, pagination=pagination)
+    return render_template('posts.html', posts=posts, pagination=pagination)
 
 
 @app.route('/categories')
