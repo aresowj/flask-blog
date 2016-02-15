@@ -1,13 +1,14 @@
-# encoding = utf-8
+# -*- coding: utf-8; -*-
 
 import config
 from datetime import datetime
-from flask import Flask, render_template, url_for, request, flash, session, redirect, abort, g
+from flask import Flask, render_template, url_for, request, flash, session, redirect
 from forms import PostAddForm, RegisterForm, LoginForm
 from utilities import admin_required, login_required, Pagination
 from models import Base, Post, User, Category, Tag
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from markdown import markdown
 
 
 # initialize app
@@ -45,15 +46,16 @@ for tag in all_tags:
 app.config['categories'] = db.query(Category).all()
 
 
-@app.route('/', defaults={'page': 1, 'tag': None})
+@app.route('/', defaults={'page': 1, 'tag_name': None})
 @app.route('/page-<int:page>')
-@app.route('/tag/<string:tag>', defaults={'page': 1})
-@app.route('/tag/<string:tag>/page-<int:page>')
-def index(page=1, tag=None):
-    posts, total_count = Post.get_posts(app.config['POSTS_PER_PAGE'], (page - 1) * app.config['POSTS_PER_PAGE'], tag=tag)
+@app.route('/tag/<tag_name>', defaults={'page': 1})
+@app.route('/tag/<tag_name>/page-<int:page>')
+def index(page=1, tag_name=None):
+    posts, total_count = Post.get_posts(app.config['POSTS_PER_PAGE'],
+                                        (page - 1) * app.config['POSTS_PER_PAGE'], tag_name=tag_name)
     pagination = Pagination(page, app.config['POSTS_PER_PAGE'], total_count)
 
-    return render_template('index.html', posts=posts, pagination=pagination, tag=tag)
+    return render_template('index.html', posts=posts, pagination=pagination, tag_name=tag_name)
 
 
 @app.route('/posts', defaults={'page': 1})
@@ -92,10 +94,11 @@ def post_view(post_id=None, post_name=None):
 def post_edit(post_id=None):
     if post_id:
         post = Post.get_post_by_id(post_id)
+        success_message = app.config['POST_EDIT_SUCCEED']
     else:
         post = Post()
+        success_message = app.config['POST_ADD_SUCCEED']
     form = PostAddForm(request.form, post)
-    available_tags = list(app.config['post_tags'].keys())
 
     if request.form:
         if form.validate():
@@ -109,7 +112,7 @@ def post_edit(post_id=None):
             post.tags = []
             for form_tag in form_tags:
                 # if the tag is new and not created before, insert it into tags table
-                if form_tag not in app.config['post_tags']:
+                if form_tag and form_tag not in app.config['post_tags']:
                     new_tag = Tag(name=form_tag)
                     post.tags.append(new_tag)
                     app.config['post_tags'][new_tag.name] = new_tag.id
@@ -121,11 +124,13 @@ def post_edit(post_id=None):
                 post.last_modified = datetime.now()
             app.db.add(post)
             app.db.commit()
+            flash(success_message, 'success')
 
-            return redirect(url_for('post_edit', post_id=post.id, tags=available_tags))
+            return redirect(url_for('post_edit', post_id=post.id))
 
         flash(app.config['FORM_ERROR'], 'error')
 
+    available_tags = list(app.config['post_tags'].keys())
     return render_template('post_edit.html', form=form, tags=available_tags)
 
 
@@ -186,6 +191,10 @@ def sign_up():
 def about():
     return render_template('about.html')
 
+
+@app.template_filter('parse_markdown')
+def parse_markdown(markdown_text):
+    return markdown(markdown_text)
 
 if __name__ == '__main__':
     app.run(host=app.config['SERVER_ADDRESS'], port=app.config['SERVER_PORT'], debug=app.config['DEBUG'])

@@ -118,7 +118,7 @@
               <div class="row">
                 <div class="col-md-3 text-center">
                   <a href="https://github.com/aresowj">
-                    <i class="fonticons fonticons-2x fonticons-github"></i><br />Github
+                    <img src="{{ url_for('static', filename='img/GitHub-Mark-32px.png') }}" /><br />Github
                   </a>
                 </div>
               </div>
@@ -163,7 +163,6 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lib/jquery.md5.js') }}"></script>
     <script src="{{ url_for('static', filename='js/marked.min.js') }}"></script>
-    <script src="https://use.fonticons.com/a78c1024.js"></script>
 
     {% block bottom_script %}{% endblock %}
   </body>

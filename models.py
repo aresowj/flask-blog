@@ -87,7 +87,7 @@ class Post(Base):
     __tablename__ = 'posts'
 
     id = Column(Integer, Sequence('post_id_seq'), primary_key=True)
-    title = Column(String, nullable=False)
+    title = Column(String(500), nullable=False)
     content = Column(Text, nullable=False)
     name = Column(String(255), nullable=False, unique=True)
     created_time = Column(DateTime, nullable=False, default=datetime.now())
@@ -99,13 +99,13 @@ class Post(Base):
     tags = relationship('Tag', secondary=post_tags, backref='posts')
 
     @staticmethod
-    def get_posts(limit, skip, tag=None, query=None):
+    def get_posts(limit, skip, tag_name=None, query=None):
         posts = []
         total_count = 0
-        if tag:
-            total_count = app.db.query(Post).join(Post.tags).filter(Tag.name == tag).count()
+        if tag_name:
+            total_count = app.db.query(Post).join(Post.tags).filter(Tag.name == tag_name).count()
             posts = (app.db.query(Post).options(joinedload('tags'))
-                     .filter(Post.tags.any(Tag.name == tag)).order_by(Post.id.desc())[skip:skip + limit])
+                     .filter(Post.tags.any(Tag.name == tag_name)).order_by(Post.id.desc())[skip:skip + limit])
         elif query:
             pass
         else:

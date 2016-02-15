@@ -6,7 +6,7 @@
     <li{% if not pagination.has_previous %} class="disabled"{% endif %}><a href="{{ url_for(request.url_rule.endpoint, page=pagination.page - 1) }}">{{ config.PREVIOUS_PAGE }}</a></li>
     {% if pagination and pagination.pages > 1 %}
     {% for page in pagination.iter_pages() %}
-    <li{% if pagination.page == page %} class="active"{% endif %}><a href="{{ url_for(request.url_rule.endpoint, page=page, tag=tag) }}">{{ page }} {% if pagination.page == page %}<span class="sr-only">(current)</span>{% endif %}</a></li>
+    <li{% if pagination.page == page %} class="active"{% endif %}><a href="{{ url_for(request.url_rule.endpoint, page=page, tag_name=tag.name) }}">{{ page }} {% if pagination.page == page %}<span class="sr-only">(current)</span>{% endif %}</a></li>
     {% endfor %}
     <li{% if not pagination.has_next %} class="disabled"{% endif %}><a href="{{ url_for(request.url_rule.endpoint, page=pagination.page + 1) }}">{{ config.NEXT_PAGE }}</a></li>
     <li{% if pagination.page == pagination.pages %} class="disabled"{% endif %}><a href="{{ url_for(request.url_rule.endpoint, page=pagination.pages) }}">{{ config.LAST_PAGE }}</a></li>
