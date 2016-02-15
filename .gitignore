@@ -1,7 +1,7 @@
 local_settings.py
 __pycache__*
 *.pyc
-log/
+logs/
 blog/
 venv/
 .idea/

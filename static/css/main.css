@@ -68,7 +68,7 @@ body > .container {
 .hr-side-bar {
   border: 0;
   height: 0;
-  margin: 5px 5px 3px 3px;
+  margin: 5px 3px 8px 3px;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
@@ -88,10 +88,20 @@ body > .container {
   padding-right: 10px;
 }
 
+.post-edit-row {
+  margin-bottom: 10px;
+}
+
 .well {
   padding-top: 5px;
 }
 
 .link-tag {
   text-decoration: none !important;
+}
+
+ul#manageLinks {
+  margin-left: 9px;
+  margin-right: 9px;
+  margin-bottom: 0;
 }

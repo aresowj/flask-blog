@@ -1,6 +1,7 @@
 # -*- coding: utf-8; -*-
 
 import config
+import json
 from datetime import datetime
 from flask import Flask, render_template, url_for, request, flash, session, redirect
 from forms import PostAddForm, RegisterForm, LoginForm
@@ -34,13 +35,10 @@ try:
 except:
     init_db()
 
-# create tag dictionary for app-wide use
-all_tags = db.query(Tag).all()
-
-
 # get some global objects
+# create tag dictionary for app-wide use
 app.config['post_tags'] = {}
-for tag in all_tags:
+for tag in db.query(Tag).all():
     app.config['post_tags'][tag.name] = tag.id
 
 app.config['categories'] = db.query(Category).all()
@@ -134,7 +132,7 @@ def post_edit(post_id=None):
     return render_template('post_edit.html', form=form, tags=available_tags)
 
 
-@app.route('/post/delete/<int:post_id>', methods=['GET'])
+@app.route('/post/<int:post_id>/delete/', methods=['GET'])
 @admin_required()
 def delete_post(post_id=None, redirect_target='index'):
     try:
@@ -195,6 +193,19 @@ def about():
 @app.template_filter('parse_markdown')
 def parse_markdown(markdown_text):
     return markdown(markdown_text)
+
+
+# APIs
+
+@app.route('/api/v1/available_tags', methods=['GET'])
+def api_available_tags():
+    tag_keyword = request.args.get('term', None)
+    all_tags = list(app.config['post_tags'].keys())
+    if tag_keyword:
+        available_tags = [tag_name for tag_name in all_tags if tag_keyword in tag_name]
+    else:
+        available_tags = all_tags
+    return json.dumps(available_tags)
 
 if __name__ == '__main__':
     app.run(host=app.config['SERVER_ADDRESS'], port=app.config['SERVER_PORT'], debug=app.config['DEBUG'])
