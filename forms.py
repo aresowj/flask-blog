@@ -16,7 +16,7 @@ class TagInputField(StringField):
             return super(TagInputField, self)._value()
 
 
-class NewPost(Form):
+class PostAddForm(Form):
     id = IntegerField('ID', id='id')
     title = StringField('Title', id='title', validators=[DataRequired()])
     content = TextAreaField('Content', id='content', validators=[DataRequired()])

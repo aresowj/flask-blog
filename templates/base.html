@@ -57,7 +57,7 @@
             <li><img src="" id="userAvatar" /></li>
             <li><a>Logged in as <span id="userEmail">{{ session.username }}</span></a></li>
             {% if session.is_admin %}
-            <li><a href="{{ url_for('edit_post') }}">Post</a></li>
+            <li><a href="{{ url_for('post_edit') }}">Post</a></li>
             {% endif %}
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
           </ul>

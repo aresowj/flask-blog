@@ -3,7 +3,7 @@
 import config
 from datetime import datetime
 from flask import Flask, render_template, url_for, request, flash, session, redirect, abort, g
-from forms import NewPost, RegisterForm, LoginForm
+from forms import PostAddForm, RegisterForm, LoginForm
 from utilities import admin_required, login_required, Pagination
 from models import Base, Post, User, Category, Tag
 from sqlalchemy import create_engine
@@ -86,12 +86,15 @@ def post_view(post_id=None, post_name=None):
     return render_template('post_view.html', post=post)
 
 
-@app.route('/post/edit/<int:post_id>', methods=['GET', 'POST'])
-@app.route('/post/new/', methods=['GET', 'POST'])
+@app.route('/posts/edit/<int:post_id>', methods=['GET', 'POST'])
+@app.route('/posts/add', methods=['GET', 'POST'])
 @admin_required()
-def edit_post(post_id=None):
-    post = Post.get_post_by_id(post_id)
-    form = NewPost(request.form, post)
+def post_edit(post_id=None):
+    if post_id:
+        post = Post.get_post_by_id(post_id)
+    else:
+        post = Post()
+    form = PostAddForm(request.form, post)
     available_tags = list(app.config['post_tags'].keys())
 
     if request.form and form.validate():
@@ -100,17 +103,17 @@ def edit_post(post_id=None):
         # only accept alphabets, numbers, underscore and slash in post name
         post.name = ''.join(char for char in form.name.data if char.isalnum() or char in ['-', '_'])
         # process tags, transfer the string into tag objects and append to the many-to-many relationship
-        tags = form.tags.data.split(',')
+        form_tags = form.tags.data.split(',')
         # clear existing tags, then re-append all tags from the form
         post.tags = []
-        for tag in tags:
+        for form_tag in form_tags:
             # if the tag is new and not created before, insert it into tags table
-            if tag not in app.config['post_tags']:
-                new_tag = Tag(name=tag)
+            if form_tag not in app.config['post_tags']:
+                new_tag = Tag(name=form_tag)
                 post.tags.append(new_tag)
                 app.config['post_tags'][new_tag.name] = new_tag.id
             else:
-                post.tags.append(db.query(Tag).filter(Tag.name == tag).first())
+                post.tags.append(db.query(Tag).filter(Tag.name == form_tag).first())
         if not post.author_id:  # insert author id for new posts
             post.author_id = session['user_id']
         else:   # update last modify time for existing posts
@@ -118,8 +121,9 @@ def edit_post(post_id=None):
         app.db.add(post)
         app.db.commit()
 
-        return redirect(url_for('edit_post', post_id=post.id, tags=available_tags))
+        return redirect(url_for('post_edit', post_id=post.id, tags=available_tags))
 
+    flash(app.config['FORM_ERROR'], 'error')
     return render_template('post_edit.html', form=form, tags=available_tags)
 
 
