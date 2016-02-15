@@ -18,7 +18,7 @@
       {% if not cat.parent_id %}
         <tr>
           <td>
-            <a href="{{ url_for('edit_post', post_id=cat.id )}}">{{ cat.name }}</a>
+            <a href="{{ url_for('post_edit', post_id=cat.id )}}">{{ cat.name }}</a>
             {% for child in cat.children %}
               {{ child.name }}
             {% endfor %}
