@@ -74,18 +74,16 @@ def categories_list():
     return render_template('categories_manage.html')
 
 
-@app.route('/post/<int:post_id>/<string:post_name>', methods=['GET'])
-def show_post(post_id=None, post_name=None):
+@app.route('/posts/<int:post_id>', methods=['GET'])
+@app.route('/posts/<int:post_id>/<string:post_name>', methods=['GET'])
+def post_view(post_id=None, post_name=None):
     post = Post.get_post_by_id(post_id)
-    if post.name != post_name:
-        return abort(404)
-
-    # update post view count when it is shown
+    # update post view count when it is shown, calculate the view count in a simple way
     post.view_count += 1
     app.db.add(post)
     app.db.commit()
 
-    return render_template('post.html', post=post)
+    return render_template('post_view.html', post=post)
 
 
 @app.route('/post/edit/<int:post_id>', methods=['GET', 'POST'])
