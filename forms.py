@@ -1,14 +1,11 @@
-from flask import current_app
 from flask_wtf import Form
 from wtforms import StringField, TextAreaField, PasswordField, BooleanField, IntegerField
 from wtforms.validators import DataRequired, Email, EqualTo
 from wtforms.compat import text_type
 from utilities import password_strength, user_exists
-from models import Tag
 
 
 class TagInputField(StringField):
-    # pass
     def _value(self):
         if not isinstance(self.data, str):
             tag_names = []

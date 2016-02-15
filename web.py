@@ -16,10 +16,10 @@ app.secret_key = app.config['SECRET_KEY']
 app.config.from_object(config)
 
 # initialize database connection
-db = create_engine(app.config['CONNECTION_STRING'], encoding=app.config['DB_CHARSET'], echo=True)
-Session = sessionmaker(bind=db)
-db_session = Session()
-app.db_session = db_session
+db_engine = create_engine(app.config['CONNECTION_STRING'], encoding=app.config['DB_CHARSET'], echo=True)
+Session = sessionmaker(bind=db_engine)  # bind engine to session
+db = Session()  # initialize SQLAlchemy session
+app.db = db     # put session to app instance 
 
 
 # for debug purpose
@@ -27,14 +27,14 @@ def init_db():
     Base.metadata.create_all(bind=db)
 
 try:
-    db_session.query(Post).all()
-    db_session.query(User).all()
-    db_session.query(Category).all()
+    db.query(Post).all()
+    db.query(User).all()
+    db.query(Category).all()
 except:
     init_db()
 
 # create tag dictionary for app-wide use
-all_tags = db_session.query(Tag).all()
+all_tags = db.query(Tag).all()
 
 
 # get some global objects
@@ -42,7 +42,7 @@ app.config['post_tags'] = {}
 for tag in all_tags:
     app.config['post_tags'][tag.name] = tag.id
 
-app.config['categories'] = db_session.query(Category).all()
+app.config['categories'] = db.query(Category).all()
 
 
 @app.route('/', defaults={'page': 1, 'tag': None})
@@ -82,8 +82,8 @@ def show_post(post_id=None, post_name=None):
 
     # update post view count when it is shown
     post.view_count += 1
-    app.db_session.add(post)
-    app.db_session.commit()
+    app.db.add(post)
+    app.db.commit()
 
     return render_template('post.html', post=post)
 
@@ -112,13 +112,13 @@ def edit_post(post_id=None):
                 post.tags.append(new_tag)
                 app.config['post_tags'][new_tag.name] = new_tag.id
             else:
-                post.tags.append(db_session.query(Tag).filter(Tag.name == tag).first())
+                post.tags.append(db.query(Tag).filter(Tag.name == tag).first())
         if not post.author_id:  # insert author id for new posts
             post.author_id = session['user_id']
         else:   # update last modify time for existing posts
             post.last_modified = datetime.now()
-        app.db_session.add(post)
-        app.db_session.commit()
+        app.db.add(post)
+        app.db.commit()
 
         return redirect(url_for('edit_post', post_id=post.id, tags=available_tags))
 
@@ -130,8 +130,8 @@ def edit_post(post_id=None):
 def delete_post(post_id=None, redirect_target='index'):
     try:
         post = Post.get_post_by_id(post_id)
-        app.db_session.delete(post)
-        app.db_session.commit()
+        app.db.delete(post)
+        app.db.commit()
         flash(app.config['POST_DELETE_SUCCESS'], 'success')
         return redirect(url_for(redirect_target))
     except:
@@ -158,7 +158,7 @@ def logout():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def sign_up():
-    if app.db_session.query(User).count() > 0:
+    if app.db.query(User).count() > 0:
         flash(app.config['REGISTRATION_NOT_ALLOWED'], 'error')
         return redirect(url_for('index'))
     form = RegisterForm(request.form)
