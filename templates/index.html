@@ -17,13 +17,13 @@
     <div class="post-list-div">
       <div class="post-preview-header">
         <h4>
-          <a href="{{ url_for('show_post', post_id=post.id, post_name=post.name) }}">{{ post.title }}</a>
+          <a href="{{ url_for('post_view', post_id=post.id, post_name=post.name) }}">{{ post.title }}</a>
         </h4>
       </div>
       <div>
         <div class="post-preview-content">
           {{ post.content|striptags|truncate() }}
-          {% if post.content|length > 255 %}<a href="{{ url_for('show_post', post_id=post.id, post_name=post.name) }}">Read more</a>{% endif %}
+          {% if post.content|length > 255 %}<a href="{{ url_for('post_view', post_id=post.id, post_name=post.name) }}">Read more</a>{% endif %}
         </div>
         <div class="row">
           <div class="text-left col-md-6">

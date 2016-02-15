@@ -74,15 +74,13 @@ body > .container {
 }
 
 #postMain {
-  font-size: large;
+  font-size: medium;
+  white-space: pre-line;
+  padding: 10px;
 }
 
 .well {
   padding-top: 5px;
-}
-
-#postMain {
-  padding: 10px;
 }
 
 .link-tag {

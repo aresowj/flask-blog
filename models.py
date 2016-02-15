@@ -87,7 +87,7 @@ class Post(Base):
     __tablename__ = 'posts'
 
     id = Column(Integer, Sequence('post_id_seq'), primary_key=True)
-    title = Column(Text, nullable=False)
+    title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
     name = Column(String(255), nullable=False, unique=True)
     created_time = Column(DateTime, nullable=False, default=datetime.now())

@@ -81,14 +81,9 @@
 {% block bottom_script %}
   <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
   <script src="{{ url_for('static', filename='js/lib/tag-it.min.js') }}" type="text/javascript" charset="utf-8"></script>
-  <script src="http://cdn.ckeditor.com/4.5.5/full/ckeditor.js"></script>
+{#  <script src="http://cdn.ckeditor.com/4.5.5/full/ckeditor.js"></script>#}
   <script>
     $(document).ready(function(){
-      CKEDITOR.replace('content', {
-        height: 400,
-        autoGrow_onStartup: true
-      });  // turn textarea into CKEditor
-
       $('#tags').tagit({
         // Options
         fieldName: "postTags",

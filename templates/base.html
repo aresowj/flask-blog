@@ -123,8 +123,6 @@
                 </div>
               </div>
           </div>
-{{ session.is_admin }}
-{{ session.user_name }}
           {% if session.is_admin %}
           <!-- Side Widget Well -->
           <div class="well" id="manageLinks">
@@ -164,6 +162,7 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lib/jquery.md5.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/marked.min.js') }}"></script>
     <script src="https://use.fonticons.com/a78c1024.js"></script>
 
     {% block bottom_script %}{% endblock %}
