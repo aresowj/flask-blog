@@ -1,3 +1,5 @@
+# -*- coding: utf-8; -*-
+
 from local_settings import *
 
 
@@ -46,7 +48,10 @@ FIRST_PAGE = 'First'
 PREVIOUS_PAGE = 'Previous'
 NEXT_PAGE = 'Next'
 LAST_PAGE = 'Last'
+POST_ADD_SUCCEED = 'New post successfully added.'
+POST_EDIT_SUCCEED = 'Post successfully edited.'
 POST_DELETE_SUCCESS = 'Post deleted.'
 POSTS_DELETE_FAILED = 'Post deletion failed.'
 PERMISSION_NOT_LOGGED_IN = 'You must be logged in first.'
 PERMISSION_NOT_HAVE = 'Sorry, you do not have permission.'
+FORM_ERROR = 'There\'s some error in your form.'

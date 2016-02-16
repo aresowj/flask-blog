@@ -57,7 +57,7 @@
             <li><img src="" id="userAvatar" /></li>
             <li><a>Logged in as <span id="userEmail">{{ session.username }}</span></a></li>
             {% if session.is_admin %}
-            <li><a href="{{ url_for('edit_post') }}">Post</a></li>
+            <li><a href="{{ url_for('post_edit') }}">Post</a></li>
             {% endif %}
             <li><a href="{{ url_for('logout') }}">Logout</a></li>
           </ul>
@@ -118,13 +118,11 @@
               <div class="row">
                 <div class="col-md-3 text-center">
                   <a href="https://github.com/aresowj">
-                    <i class="fonticons fonticons-2x fonticons-github"></i><br />Github
+                    <img src="{{ url_for('static', filename='img/GitHub-Mark-32px.png') }}" /><br />Github
                   </a>
                 </div>
               </div>
           </div>
-{{ session.is_admin }}
-{{ session.user_name }}
           {% if session.is_admin %}
           <!-- Side Widget Well -->
           <div class="well" id="manageLinks">
@@ -132,7 +130,7 @@
             <div class="row"><hr class="hr-side-bar"></div>
               <div class="row">
                 <div>
-                  <ul class="list-group list-unstyled">
+                  <ul class="list-group list-unstyled" id="manageLinks">
                     <li><a href="{{ url_for('posts_list') }}" class="list-group-item">Posts</a></li>
                     <li><a href="{{ url_for('categories_list') }}" class="list-group-item">Categories</a></li>
                   </ul>
@@ -164,8 +162,10 @@
     <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     <script src="{{ url_for('static', filename='js/lib/jquery.md5.js') }}"></script>
-    <script src="https://use.fonticons.com/a78c1024.js"></script>
+    <script src="{{ url_for('static', filename='js/lib/marked.min.js') }}"></script>
 
     {% block bottom_script %}{% endblock %}
+
+    <script id="dsq-count-scr" src="//aresounet.disqus.com/count.js" async></script>
   </body>
 </html>

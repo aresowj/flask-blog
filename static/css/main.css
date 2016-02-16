@@ -5,10 +5,9 @@ html {
 
 body {
   /* Margin bottom by footer height */
-  margin-bottom: 60px;
+  margin-bottom: 80px;
   font-family: 'Open Sans', sans-serif;
   -ms-word-wrap: break-word;
-  word-wrap: break-word;
 }
 
 .footer {
@@ -68,23 +67,44 @@ body > .container {
 .hr-side-bar {
   border: 0;
   height: 0;
-  margin: 5px 5px 3px 3px;
+  margin: 5px 3px 8px 3px;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   border-bottom: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 #postMain {
-  font-size: large;
+  font-size: medium;
+  padding: 10px;
+}
+
+#postInfoDiv {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+#postManageLinkDiv {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.post-edit-row {
+  margin-bottom: 10px;
 }
 
 .well {
   padding-top: 5px;
 }
 
-#postMain {
-  padding: 10px;
-}
-
 .link-tag {
   text-decoration: none !important;
+}
+
+ul#manageLinks {
+  margin-left: 9px;
+  margin-right: 9px;
+  margin-bottom: 0;
+}
+
+.syntaxhighlighter table .container:before {
+    display: none !important;
 }

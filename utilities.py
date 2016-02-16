@@ -1,5 +1,7 @@
+# -*- coding: utf-8; -*-
+
 from math import ceil
-from flask import current_app, session, redirect, url_for, flash
+from flask import current_app as app, session, redirect, url_for, flash
 from models import User
 from functools import wraps
 from wtforms import ValidationError
@@ -12,9 +14,9 @@ def password_strength(form, field):
     :param field: passed from WTForms
     :return: nothing
     """
-    if len(field.data) < current_app.config['MIN_PASSWORD_LENGTH']:
+    if len(field.data) < app.config['MIN_PASSWORD_LENGTH']:
         raise ValidationError('Password must be longer than %d characters' %
-                              current_app.config['MIN_PASSWORD_LENGTH'])
+                              app.config['MIN_PASSWORD_LENGTH'])
     if field.data.isnumeric() or field.data.isalpha():
         raise ValidationError('Password must contain at least one letter and one number!')
 
@@ -38,7 +40,7 @@ def login_required():
         @wraps(f)
         def wrapped(*args, **kwargs):
             if not session.get('username'):
-                flash(current_app.config['PERMISSION_NOT_LOGGED_IN'], 'error')
+                flash(app.config['PERMISSION_NOT_LOGGED_IN'], 'error')
                 return redirect(url_for('login'))
             return f(*args, **kwargs)
         return wrapped
@@ -50,7 +52,7 @@ def admin_required():
         @wraps(f)
         def wrapped(*args, **kwargs):
             if not session['is_admin']:
-                flash(current_app.config['PERMISSION_NOT_HAVE'], 'error')
+                flash(app.config['PERMISSION_NOT_HAVE'], 'error')
                 return redirect(url_for('index'))
             return f(*args, **kwargs)
         return wrapped
@@ -80,3 +82,6 @@ class Pagination(object):
         end = self.pages if self.page + side_count >= self.pages else self.page + side_count
         for i in range(start, end + 1):
             yield i
+
+
+

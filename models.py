@@ -3,7 +3,7 @@ from sqlalchemy import Column, ForeignKey, Integer, String, Text, Boolean, Seque
 from sqlalchemy.orm import relationship, backref, joinedload
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
-from flask import current_app, redirect, url_for, flash, session
+from flask import current_app as app, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -27,33 +27,34 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
 
     def get_user(self, user_id=None):
-        pass
+        raise NotImplementedError
 
     def update_user(self):
-        db = current_app.db_session
-
         if not self.id:
             # no user id populated, adding new user
             self.password = generate_password_hash(self.password, method='pbkdf2:sha256')
-            db.add(self)
-            db.commit()
+            app.db.add(self)
+            app.db.commit()
             return True
+        else:
+            # has user id, updating existing user
+            # update user record with id here, only touch the fields modified
+            raise NotImplementedError
 
     @staticmethod
     def login(form):
-        db = current_app.db_session
         username = form.username.data
         password = form.password.data
 
         try:
-            user = db.query(User).filter(User.email == username).one()
+            user = app.db.query(User).filter(User.email == username).one()
         except NoResultFound:
-            flash(current_app.config['LOGIN_FAILED_USER_NOT_EXIST'], 'error')
+            flash(app.config['LOGIN_FAILED_USER_NOT_EXIST'], 'error')
         except MultipleResultsFound:
-            flash(current_app.config['LOGIN_FAILED_DUPLICATED_USER'], 'error')
+            flash(app.config['LOGIN_FAILED_DUPLICATED_USER'], 'error')
         else:
             if not check_password_hash(user.password, password):
-                flash(current_app.config['LOGIN_FAILED_PASSWORD_NOT_MATCH'], 'error')
+                flash(app.config['LOGIN_FAILED_PASSWORD_NOT_MATCH'], 'error')
             else:
                 # if password matched
                 session['permanent'] = form.remember.data
@@ -71,10 +72,9 @@ class User(Base):
         :param email: the email of that user
         :return:
         """
-        db = current_app.db_session
-
+        
         try:
-            user = db.query(User).filter(User.email == email).one()
+            user = app.db.query(User).filter(User.email == email).one()
         except NoResultFound:
             return None
         except MultipleResultsFound:
@@ -87,7 +87,7 @@ class Post(Base):
     __tablename__ = 'posts'
 
     id = Column(Integer, Sequence('post_id_seq'), primary_key=True)
-    title = Column(Text, nullable=False)
+    title = Column(String(500), nullable=False)
     content = Column(Text, nullable=False)
     name = Column(String(255), nullable=False, unique=True)
     created_time = Column(DateTime, nullable=False, default=datetime.now())
@@ -99,27 +99,25 @@ class Post(Base):
     tags = relationship('Tag', secondary=post_tags, backref='posts')
 
     @staticmethod
-    def get_posts(limit, skip, tag=None, query=None):
-        db = current_app.db_session
+    def get_posts(limit, skip, tag_name=None, query=None):
         posts = []
         total_count = 0
-        if tag:
-            total_count = db.query(Post).join(Post.tags).filter(Tag.name == tag).count()
-            posts = (db.query(Post).options(joinedload('tags'))
-                     .filter(Post.tags.any(Tag.name == tag)).order_by(Post.id.desc())[skip:skip + limit])
+        if tag_name:
+            total_count = app.db.query(Post).join(Post.tags).filter(Tag.name == tag_name).count()
+            posts = (app.db.query(Post).options(joinedload('tags'))
+                     .filter(Post.tags.any(Tag.name == tag_name)).order_by(Post.id.desc())[skip:skip + limit])
         elif query:
             pass
         else:
-            total_count = db.query(Post.id).count()
-            posts = db.query(Post).options(joinedload('tags')).order_by(Post.id.desc())[skip:skip + limit]
+            total_count = app.db.query(Post.id).count()
+            posts = app.db.query(Post).options(joinedload('tags')).order_by(Post.id.desc())[skip:skip + limit]
         return posts, total_count
 
     @staticmethod
     def get_post_by_id(post_id=None):
         if not post_id:
             return Post()
-        db = current_app.db_session
-        post = db.query(Post).get(post_id)
+        post = app.db.query(Post).get(post_id)
 
         return post
 

@@ -1,3 +1,4 @@
+{% if get_flashed_messages() %}
 <div id="messageDiv">
   {% for category, message in get_flashed_messages(with_categories=true) %}
   <div class="alert {% if category == 'error' %}alert-warning {% elif category == 'success' %}alert-success {% endif %}">
@@ -6,3 +7,4 @@
   </div>
   {% endfor %}
 </div>
+{% endif %}

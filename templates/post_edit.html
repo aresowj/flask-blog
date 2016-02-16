@@ -3,10 +3,10 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block extra_script %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-markdown.min.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/jquery.tagit.css') }}">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/tagit.ui-zendesk.css') }}">
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins/bootstrap-markdown.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins/jquery.tagit.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins/tagit.ui-zendesk.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins/jquery-ui.css') }}">
 {% endblock %}
 
 {% block page_title %}
@@ -23,19 +23,18 @@
     <div>
       <h1 class="page-header">
         {% if form.id.data %}
-        {{ config['EDIT_POST_PAGE_HEADER'] }}
+        {{ config['EDIT_POST_PAGE_HEADER'] }} - <a href="{{ url_for('post_view', post_id=form.id.data, post_name=form.name.data) }}">{{ form.title.data }}</a>
         {% else %}
         {{ config['NEW_POST_PAGE_HEADER'] }}
         {% endif %}
       </h1>
     </div>
 
-    {% include 'messages.html' %}
-
     <div id="new_post_form" class="form-group col-md-12">
+      {% include 'messages.html' %}
       <form method="post" role="form">
         {{ form.csrf_token }}
-        <p>
+        <div class="post-edit-row">
           {{ form.title.label }}<br />
           {{ form.title(size="50", class="form-control") }}
           {% if form.title.errors %}
@@ -43,17 +42,17 @@
             <span class="text-danger">{{ error }}</span>
           {% endfor %}
           {% endif %}
-        </p>
-        <p>
+        </div>
+        <div class="post-edit-row">
           {{ form.content.label }}<br />
-          {{ form.content(rows="20", class="form-control") }}
+          {{ form.content(**{"rows": "20", "class": "form-control", "data-provide": "markdown"}) }}
           {% if form.content.errors %}
           {% for error in form.content.errors %}
             <span class="text-danger">{{ error }}</span>
           {% endfor %}
           {% endif %}
-        </p>
-        <p>
+        </div>
+        <div class="post-edit-row">
           {{ form.tags.label }}<br />
           {{ form.tags(size="50", class="form-control") }}
           {% if form.tags.errors %}
@@ -61,8 +60,8 @@
             <span class="text-danger">{{ error }}</span>
           {% endfor %}
           {% endif %}
-        </p>
-        <p>
+        </div>
+        <div class="post-edit-row">
           {{ form.name.label }}<br />
           {{ form.name(size="50", class="form-control") }}
           {% if form.name.errors %}
@@ -70,7 +69,7 @@
             <span class="text-danger">{{ error }}</span>
           {% endfor %}
           {% endif %}
-        </p>
+        </div>
         <button class="btn btn-primary pull-right" type="submit">Submit</button>
       </form>
     </div>
@@ -79,21 +78,19 @@
 {% endblock %}
 
 {% block bottom_script %}
-  <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="{{ url_for('static', filename='js/lib/jquery-ui.min.js') }}" type="text/javascript" charset="utf-8"></script>
+  <script src="{{ url_for('static', filename='js/lib/bootstrap-markdown.js') }}" type="text/javascript" charset="utf-8"></script>
   <script src="{{ url_for('static', filename='js/lib/tag-it.min.js') }}" type="text/javascript" charset="utf-8"></script>
-  <script src="http://cdn.ckeditor.com/4.5.5/full/ckeditor.js"></script>
   <script>
     $(document).ready(function(){
-      CKEDITOR.replace('content', {
-        height: 400,
-        autoGrow_onStartup: true
-      });  // turn textarea into CKEditor
-
       $('#tags').tagit({
         // Options
         fieldName: "postTags",
-        availableTags: {{ tags|safe }},
-        autocomplete: {delay: 0, minLength: 2},
+        autocomplete: {
+          delay: 0,
+          minLength: 2,
+          source: '/api/v1/available_tags'
+        },
         showAutocompleteOnFocus: true,
         removeConfirmation: true,
         allowDuplicates: false,
