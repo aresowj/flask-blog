@@ -105,3 +105,11 @@ ul#manageLinks {
   margin-right: 9px;
   margin-bottom: 0;
 }
+
+.markdownContent {
+  /*white-space: pre-wrap;*/
+}
+
+.syntaxhighlighter table .container:before {
+    display: none !important;
+}

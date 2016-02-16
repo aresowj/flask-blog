@@ -23,7 +23,7 @@
     <div>
       <h1 class="page-header">
         {% if form.id.data %}
-        {{ config['EDIT_POST_PAGE_HEADER'] }} - {{ form.title.data }}
+        {{ config['EDIT_POST_PAGE_HEADER'] }} - <a href="{{ url_for('post_view', post_id=form.id.data, post_name=form.name.data) }}">{{ form.title.data }}</a>
         {% else %}
         {{ config['NEW_POST_PAGE_HEADER'] }}
         {% endif %}

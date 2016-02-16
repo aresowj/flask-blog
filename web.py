@@ -9,7 +9,7 @@ from utilities import admin_required, login_required, Pagination
 from models import Base, Post, User, Category, Tag
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from markdown import markdown
+from markdown2 import markdown
 
 
 # initialize app
@@ -202,7 +202,7 @@ def api_available_tags():
     tag_keyword = request.args.get('term', None)
     all_tags = list(app.config['post_tags'].keys())
     if tag_keyword:
-        available_tags = [tag_name for tag_name in all_tags if tag_keyword in tag_name]
+        available_tags = [tag_name for tag_name in all_tags if tag_keyword.lower() in tag_name.lower()]
     else:
         available_tags = all_tags
     return json.dumps(available_tags)

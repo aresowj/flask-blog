@@ -2,6 +2,9 @@
 
 {% block page_title %}{{ post.title }}{% endblock %}
 
+{% block extra_script %}
+{% endblock %}
+
 {% block left_content %}
 <!-- left content column start -->
   <div class="row">
@@ -12,7 +15,7 @@
 
   {% include 'messages.html' %}
 
-  <div id="postMain">
+  <div id="postMain" class="markdownContent">
     {{ post.content|parse_markdown|safe }}
   </div>
 
@@ -25,14 +28,50 @@
       {% include 'post_manage_links.html' %}
     {% endwith %}
   </div>
-
   <hr>
 
   <div class="row">
-  Comment Area (To be built)
+  <div id="disqus_thread"></div>
+    <script>
+    /**
+    * RECOMMENDED CONFIGURATION VARIABLES: EDIT AND UNCOMMENT THE SECTION BELOW TO INSERT DYNAMIC VALUES FROM YOUR PLATFORM OR CMS.
+    * LEARN WHY DEFINING THESE VARIABLES IS IMPORTANT: https://disqus.com/admin/universalcode/#configuration-variables
+    */
+    var disqus_config = function () {
+    this.page.url = '{{ request.url }}'; // Replace PAGE_URL with your page's canonical URL variable
+    this.page.identifier = {{ post.id }}; // Replace PAGE_IDENTIFIER with your page's unique identifier variable
+    };
+    (function() { // DON'T EDIT BELOW THIS LINE
+    var d = document, s = d.createElement('script');
+
+    s.src = '//aresounet.disqus.com/embed.js';
+
+    s.setAttribute('data-timestamp', +new Date());
+    (d.head || d.body).appendChild(s);
+    })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
   </div>
-
-  <hr>
-
 <!-- left content column end -->
+{% endblock %}
+
+{% block bottom_script %}
+  <script src="{{ url_for('static', filename='js/lib/SyntaxHighlighter/shCore.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/lib/SyntaxHighlighter/shAutoloader.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins/SyntaxHighlighter/shCore.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins/SyntaxHighlighter/shThemeDefault.css') }}">
+  <script type="text/javascript">
+    $(document).ready(function () {
+      SyntaxHighlighter.all();
+      SyntaxHighlighter.autoloader(
+          'py python /static/js/lib/SyntaxHighlighter/shBrushPython.js',
+          'js javascript /static/js/lib/SyntaxHighlighter/shBrushJScript.js',
+          'bash /static/js/lib/SyntaxHighlighter/shBrushBash.js',
+          'css /static/js/lib/SyntaxHighlighter/shBrushCss.js',
+          'java /static/js/lib/SyntaxHighlighter/shBrushJava.js',
+          'php /static/js/lib/SyntaxHighlighter/shBrushPhp.js',
+          'ruby /static/js/lib/SyntaxHighlighter/shBrushRuby.js'
+      );
+    })
+  </script>
 {% endblock %}
