@@ -17,7 +17,7 @@
 
   {% include 'messages.html' %}
 
-  <div id="postMain" class="markdownContent">
+  <div id="postMain">
     {{ post.content|parse_markdown }}
   </div>
 
@@ -62,6 +62,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins/SyntaxHighlighter/shThemeDefault.css') }}">
   <script type="text/javascript">
     $(document).ready(function () {
+      SyntaxHighlighter.config.tagName = 'code';
       SyntaxHighlighter.all();
       SyntaxHighlighter.autoloader(
           'py python /static/js/lib/SyntaxHighlighter/shBrushPython.js',
