@@ -2,14 +2,14 @@
 
 import config
 import json
+import markdown2
 from datetime import datetime
-from flask import Flask, render_template, url_for, request, flash, session, redirect
+from flask import Flask, render_template, url_for, request, flash, session, redirect, Markup
 from forms import PostAddForm, RegisterForm, LoginForm
 from utilities import admin_required, login_required, Pagination
 from models import Base, Post, User, Category, Tag
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from markdown2 import markdown
 
 
 # initialize app
@@ -192,7 +192,7 @@ def about():
 
 @app.template_filter('parse_markdown')
 def parse_markdown(markdown_text):
-    return markdown(markdown_text)
+    return Markup(markdown2.markdown(markdown_text))
 
 
 # APIs

@@ -3,6 +3,8 @@
 {% block page_title %}{{ post.title }}{% endblock %}
 
 {% block extra_script %}
+  <script src="{{ url_for('static', filename='js/lib/SyntaxHighlighter/shCore.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/lib/SyntaxHighlighter/shAutoloader.js') }}"></script>
 {% endblock %}
 
 {% block left_content %}
@@ -16,7 +18,7 @@
   {% include 'messages.html' %}
 
   <div id="postMain" class="markdownContent">
-    {{ post.content|parse_markdown|safe }}
+    {{ post.content|parse_markdown }}
   </div>
 
   <div class="row text-right">
@@ -56,8 +58,6 @@
 {% endblock %}
 
 {% block bottom_script %}
-  <script src="{{ url_for('static', filename='js/lib/SyntaxHighlighter/shCore.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/lib/SyntaxHighlighter/shAutoloader.js') }}"></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins/SyntaxHighlighter/shCore.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/plugins/SyntaxHighlighter/shThemeDefault.css') }}">
   <script type="text/javascript">
