@@ -7,7 +7,7 @@ from flask import Flask, render_template, url_for, request, flash, session, redi
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from . import config
-from .models import Base, Post, User, Category, Tag
+from .models import Post, User, Category, Tag
 from .utilities import admin_required, login_required, Pagination
 from .forms import PostAddForm, RegisterForm, LoginForm
 
