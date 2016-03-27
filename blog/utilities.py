@@ -1,11 +1,10 @@
 # -*- coding: utf-8; -*-
 
 from math import ceil
-
-from models import User
 from flask import current_app as app, session, redirect, url_for, flash
 from functools import wraps
 from wtforms import ValidationError
+from .models import User
 
 
 def password_strength(form, field):

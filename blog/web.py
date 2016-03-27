@@ -2,14 +2,14 @@
 
 import json
 import markdown2
-import config
 from datetime import datetime
 from flask import Flask, render_template, url_for, request, flash, session, redirect, Markup
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from models import Base, Post, User, Category, Tag
-from utilities import admin_required, login_required, Pagination
-from forms import PostAddForm, RegisterForm, LoginForm
+from . import config
+from .models import Base, Post, User, Category, Tag
+from .utilities import admin_required, login_required, Pagination
+from .forms import PostAddForm, RegisterForm, LoginForm
 
 
 # initialize app

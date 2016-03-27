@@ -1,8 +1,8 @@
-from utilities import password_strength, user_exists
 from flask_wtf import Form
 from wtforms import StringField, TextAreaField, PasswordField, BooleanField, IntegerField
 from wtforms.compat import text_type
 from wtforms.validators import DataRequired, Email, EqualTo
+from .utilities import password_strength, user_exists
 
 
 class TagInputField(StringField):
