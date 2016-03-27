@@ -1,6 +1,6 @@
 # -*- coding: utf-8; -*-
 
-from local_settings import *
+from .local_settings import *
 
 
 ##################################################
@@ -21,8 +21,8 @@ CONNECTION_STRING = 'mysql+pymysql://' + DB_USER_NAME + ':' + DB_PASSWORD + \
                     '@' + DB_HOST_NAME + '/' + DB_DATABASE_NAME + '?charset=' + DB_CHARSET
 
 POSTS_PER_PAGE = 10
-
 MIN_PASSWORD_LENGTH = 8
+DEFAULT = None      # this is for flask-script turning on the debug option
 
 # global strings
 ABOUT_TITLE = 'About'

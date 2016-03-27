@@ -1,10 +1,11 @@
-local_settings.py
+blog/local_settings.py
 __pycache__*
 *.pyc
 logs/
-blog/
 venv/
 .idea/
 *.ini
 *.sock
 *.log
+migrations/
+

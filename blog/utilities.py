@@ -2,9 +2,9 @@
 
 from math import ceil
 from flask import current_app as app, session, redirect, url_for, flash
-from models import User
 from functools import wraps
 from wtforms import ValidationError
+from .models import User
 
 
 def password_strength(form, field):

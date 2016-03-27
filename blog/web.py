@@ -1,15 +1,15 @@
 # -*- coding: utf-8; -*-
 
-import config
 import json
 import markdown2
 from datetime import datetime
 from flask import Flask, render_template, url_for, request, flash, session, redirect, Markup
-from forms import PostAddForm, RegisterForm, LoginForm
-from utilities import admin_required, login_required, Pagination
-from models import Base, Post, User, Category, Tag
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from . import config
+from .models import Post, User, Category, Tag
+from .utilities import admin_required, login_required, Pagination
+from .forms import PostAddForm, RegisterForm, LoginForm
 
 
 # initialize app
@@ -24,24 +24,14 @@ db = Session()  # initialize SQLAlchemy session
 app.db = db     # put session to app instance 
 
 
-# for debug purpose
-def init_db():
-    Base.metadata.create_all(bind=db)
-
-try:
-    db.query(Post).all()
-    db.query(User).all()
-    db.query(Category).all()
-except:
-    init_db()
-
-# get some global objects
-# create tag dictionary for app-wide use
-app.config['post_tags'] = {}
-for tag in db.query(Tag).all():
-    app.config['post_tags'][tag.name] = tag.id
-
-app.config['categories'] = db.query(Category).all()
+def run_app():
+    # get some global objects
+    # create tag dictionary for app-wide use
+    app.config['post_tags'] = {}
+    for tag in db.query(Tag).all():
+        app.config['post_tags'][tag.name] = tag.id
+    app.config['categories'] = db.query(Category).all()
+    app.run(host=app.config['SERVER_ADDRESS'], port=app.config['SERVER_PORT'], debug=app.config['DEBUG'])
 
 
 @app.route('/', defaults={'page': 1, 'tag_name': None})
@@ -196,7 +186,6 @@ def parse_markdown(markdown_text):
 
 
 # APIs
-
 @app.route('/api/v1/available_tags', methods=['GET'])
 def api_available_tags():
     tag_keyword = request.args.get('term', None)
@@ -208,4 +197,5 @@ def api_available_tags():
     return json.dumps(available_tags)
 
 if __name__ == '__main__':
-    app.run(host=app.config['SERVER_ADDRESS'], port=app.config['SERVER_PORT'], debug=app.config['DEBUG'])
+    run_app()
+
