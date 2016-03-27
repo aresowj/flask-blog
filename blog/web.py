@@ -1,15 +1,15 @@
 # -*- coding: utf-8; -*-
 
-import config
 import json
 import markdown2
+import config
 from datetime import datetime
 from flask import Flask, render_template, url_for, request, flash, session, redirect, Markup
-from forms import PostAddForm, RegisterForm, LoginForm
-from utilities import admin_required, login_required, Pagination
-from models import Base, Post, User, Category, Tag
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from models import Base, Post, User, Category, Tag
+from utilities import admin_required, login_required, Pagination
+from forms import PostAddForm, RegisterForm, LoginForm
 
 
 # initialize app
@@ -23,25 +23,28 @@ Session = sessionmaker(bind=db_engine)  # bind engine to session
 db = Session()  # initialize SQLAlchemy session
 app.db = db     # put session to app instance 
 
+#
+# # for debug purpose
+# def init_db():
+#     Base.metadata.create_all(bind=db)
+#
+# try:
+#     db.query(Post).all()
+#     db.query(User).all()
+#     db.query(Category).all()
+#     db.query(Tag).all()
+# except:
+#     init_db()
 
-# for debug purpose
-def init_db():
-    Base.metadata.create_all(bind=db)
 
-try:
-    db.query(Post).all()
-    db.query(User).all()
-    db.query(Category).all()
-except:
-    init_db()
+def init_app():
+    # get some global objects
+    # create tag dictionary for app-wide use
+    app.config['post_tags'] = {}
+    for tag in db.query(Tag).all():
+        app.config['post_tags'][tag.name] = tag.id
 
-# get some global objects
-# create tag dictionary for app-wide use
-app.config['post_tags'] = {}
-for tag in db.query(Tag).all():
-    app.config['post_tags'][tag.name] = tag.id
-
-app.config['categories'] = db.query(Category).all()
+    app.config['categories'] = db.query(Category).all()
 
 
 @app.route('/', defaults={'page': 1, 'tag_name': None})
@@ -208,4 +211,5 @@ def api_available_tags():
     return json.dumps(available_tags)
 
 if __name__ == '__main__':
+    init_app()
     app.run(host=app.config['SERVER_ADDRESS'], port=app.config['SERVER_PORT'], debug=app.config['DEBUG'])
