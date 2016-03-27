@@ -23,19 +23,6 @@ Session = sessionmaker(bind=db_engine)  # bind engine to session
 db = Session()  # initialize SQLAlchemy session
 app.db = db     # put session to app instance 
 
-#
-# # for debug purpose
-# def init_db():
-#     Base.metadata.create_all(bind=db)
-#
-# try:
-#     db.query(Post).all()
-#     db.query(User).all()
-#     db.query(Category).all()
-#     db.query(Tag).all()
-# except:
-#     init_db()
-
 
 def init_app():
     # get some global objects
@@ -199,7 +186,6 @@ def parse_markdown(markdown_text):
 
 
 # APIs
-
 @app.route('/api/v1/available_tags', methods=['GET'])
 def api_available_tags():
     tag_keyword = request.args.get('term', None)
