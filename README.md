@@ -15,3 +15,10 @@ After successfully initialized the migration, use this command to create tables 
 
 `python manage.py db upgrade`
 
+
+####  Start Development Server
+
+After setting up paraemters in `local_settings.py`, you can use below command to start the dev server:
+
+`python manage.py start`
+

@@ -24,14 +24,14 @@ db = Session()  # initialize SQLAlchemy session
 app.db = db     # put session to app instance 
 
 
-def init_app():
+def run_app():
     # get some global objects
     # create tag dictionary for app-wide use
     app.config['post_tags'] = {}
     for tag in db.query(Tag).all():
         app.config['post_tags'][tag.name] = tag.id
-
     app.config['categories'] = db.query(Category).all()
+    app.run(host=app.config['SERVER_ADDRESS'], port=app.config['SERVER_PORT'], debug=app.config['DEBUG'])
 
 
 @app.route('/', defaults={'page': 1, 'tag_name': None})
@@ -197,5 +197,5 @@ def api_available_tags():
     return json.dumps(available_tags)
 
 if __name__ == '__main__':
-    init_app()
-    app.run(host=app.config['SERVER_ADDRESS'], port=app.config['SERVER_PORT'], debug=app.config['DEBUG'])
+    run_app()
+
