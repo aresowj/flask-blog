@@ -17,7 +17,7 @@ from .local_settings import *
 #
 ##################################################
 
-CONNECTION_STRING = 'mysql+pymysql://' + DB_USER_NAME + ':' + DB_PASSWORD + \
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://' + DB_USER_NAME + ':' + DB_PASSWORD + \
                     '@' + DB_HOST_NAME + '/' + DB_DATABASE_NAME + '?charset=' + DB_CHARSET
 
 POSTS_PER_PAGE = 10
