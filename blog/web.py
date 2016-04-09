@@ -18,7 +18,7 @@ app.secret_key = app.config['SECRET_KEY']
 app.config.from_object(config)
 
 # initialize database connection
-db_engine = create_engine(app.config['CONNECTION_STRING'], encoding=app.config['DB_CHARSET'], echo=True)
+db_engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], encoding=app.config['DB_CHARSET'], echo=True)
 Session = sessionmaker(bind=db_engine)  # bind engine to session
 db = Session()  # initialize SQLAlchemy session
 app.db = db     # put session to app instance 
