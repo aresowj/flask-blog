@@ -1,10 +1,18 @@
+# -*- coding: utf-8 -*-
+
+"""Definitions for blog models
+"""
+
+import logging
 from datetime import datetime
 from sqlalchemy import Column, ForeignKey, Integer, String, Text, Boolean, Sequence, DateTime, func, Table
 from sqlalchemy.orm import relationship, backref, joinedload
+from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from flask import current_app as app, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
+from .web import DBSession
 
 
 Base = declarative_base()
@@ -14,6 +22,7 @@ post_tags = Table('post_tag', Base.metadata,
                   Column('post_id', Integer, ForeignKey('posts.id')),
                   Column('tag_id', Integer, ForeignKey('tags.id'))
                   )
+logger = logging.getLogger(__name__)
 
 
 class User(Base):
@@ -31,11 +40,15 @@ class User(Base):
 
     def update_user(self):
         if not self.id:
-            # no user id populated, adding new user
-            self.password = generate_password_hash(self.password, method='pbkdf2:sha256')
-            app.db.add(self)
-            app.db.commit()
-            return True
+            try:
+                # no user id populated, adding new user
+                self.password = generate_password_hash(self.password, method='pbkdf2:sha256')
+                app.db.add(self)
+                app.db.commit()
+                return True
+            except DBAPIError as e:
+                logger.exception(e)
+                return False
         else:
             # has user id, updating existing user
             # update user record with id here, only touch the fields modified
@@ -114,12 +127,58 @@ class Post(Base):
         return posts, total_count
 
     @staticmethod
+    def update_post(post, form):
+        try:
+            post.title = form.title.data
+            post.content = form.content.data
+            # only accept alphabets, numbers, underscore and slash in post name
+            post.name = ''.join(char for char in form.name.data if char.isalnum() or char in ['-', '_'])
+            # process tags, transfer the string into tag objects and append to the many-to-many relationship
+            form_tags = form.tags.data.split(',')
+            # clear existing tags, then re-append all tags from the form
+            post.tags = []
+            for form_tag in form_tags:
+                # if the tag is new and not created before, insert it into tags table
+                if form_tag and form_tag not in app.config['post_tags']:
+                    new_tag = Tag(name=form_tag)
+                    post.tags.append(new_tag)
+                    app.config['post_tags'][new_tag.name] = new_tag.id
+                else:
+                    post.tags.append(db.query(Tag).filter(Tag.name == form_tag).first())
+            if not post.author_id:  # insert author id for new posts
+                post.author_id = session['user_id']
+            else:  # update last modify time for existing posts
+                post.last_modified = datetime.now()
+            app.db.add(post)
+            app.db.commit()
+            return True
+        except DBAPIError as e:
+            logger.exception(e)
+            return False
+
+    @staticmethod
+    def delete_post_by_id(post_id):
+        db_session = DBSession()
+        db_session.delete(Post(post_id))
+        db_session.commit()
+        db_session.close()
+
+    @staticmethod
     def get_post_by_id(post_id=None):
         if not post_id:
             return Post()
         post = app.db.query(Post).get(post_id)
 
         return post
+
+    @staticmethod
+    def increase_post_view_by_one(post):
+        if post:
+            post.view_count += 1
+            with app.db():
+                app.db.add(post)
+                app.db.commit()
+
 
 
 class Attachment(Base):

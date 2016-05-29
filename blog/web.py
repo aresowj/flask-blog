@@ -19,9 +19,7 @@ app.config.from_object(config)
 
 # initialize database connection
 db_engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], encoding=app.config['DB_CHARSET'], echo=True)
-Session = sessionmaker(bind=db_engine)  # bind engine to session
-db = Session()  # initialize SQLAlchemy session
-app.db = db     # put session to app instance 
+DBSession = sessionmaker(bind=db_engine)  # bind engine to session object
 
 
 def run_app():
@@ -69,9 +67,7 @@ def categories_list():
 def post_view(post_id=None, post_name=None):
     post = Post.get_post_by_id(post_id)
     # update post view count when it is shown, calculate the view count in a simple way
-    post.view_count += 1
-    app.db.add(post)
-    app.db.commit()
+    Post.increase_post_view_by_one(post)
 
     return render_template('post_view.html', post=post)
 
@@ -90,28 +86,7 @@ def post_edit(post_id=None):
 
     if request.form:
         if form.validate():
-            post.title = form.title.data
-            post.content = form.content.data
-            # only accept alphabets, numbers, underscore and slash in post name
-            post.name = ''.join(char for char in form.name.data if char.isalnum() or char in ['-', '_'])
-            # process tags, transfer the string into tag objects and append to the many-to-many relationship
-            form_tags = form.tags.data.split(',')
-            # clear existing tags, then re-append all tags from the form
-            post.tags = []
-            for form_tag in form_tags:
-                # if the tag is new and not created before, insert it into tags table
-                if form_tag and form_tag not in app.config['post_tags']:
-                    new_tag = Tag(name=form_tag)
-                    post.tags.append(new_tag)
-                    app.config['post_tags'][new_tag.name] = new_tag.id
-                else:
-                    post.tags.append(db.query(Tag).filter(Tag.name == form_tag).first())
-            if not post.author_id:  # insert author id for new posts
-                post.author_id = session['user_id']
-            else:   # update last modify time for existing posts
-                post.last_modified = datetime.now()
-            app.db.add(post)
-            app.db.commit()
+
             flash(success_message, 'success')
 
             return redirect(url_for('post_edit', post_id=post.id))
@@ -125,15 +100,11 @@ def post_edit(post_id=None):
 @app.route('/post/<int:post_id>/delete/', methods=['GET'])
 @admin_required()
 def delete_post(post_id=None, redirect_target='index'):
-    try:
-        post = Post.get_post_by_id(post_id)
-        app.db.delete(post)
-        app.db.commit()
+    if Post.delete_post_by_id(post_id):
         flash(app.config['POST_DELETE_SUCCESS'], 'success')
-        return redirect(url_for(redirect_target))
-    except:
+    else:
         flash(app.config['POSTS_DELETE_FAILED'], 'error')
-        return redirect(url_for(redirect_target))
+    return redirect(url_for(redirect_target))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -155,22 +126,17 @@ def logout():
 
 @app.route('/signup', methods=['GET', 'POST'])
 def sign_up():
-    if app.db.query(User).count() > 0:
-        flash(app.config['REGISTRATION_NOT_ALLOWED'], 'error')
-        return redirect(url_for('index'))
     form = RegisterForm(request.form)
 
     if request.form and form.validate():
         user = User()
         form.populate_obj(user)
-        try:
-            user.update_user()
-        except:
-            flash(app.config['REGISTRATION_FAILED'], 'error')
-            return redirect(url_for('sign_up'))
-        else:
+        if user.update_user():
             flash(app.config['REGISTRATION_SUCCEED'], 'success')
             return redirect(url_for('login'))
+        else:
+            flash(app.config['REGISTRATION_FAILED'], 'error')
+            return redirect(url_for('sign_up'))
 
     return render_template('register.html', form=form)
 
