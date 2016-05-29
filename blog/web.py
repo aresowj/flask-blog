@@ -7,7 +7,7 @@ from flask import Flask, render_template, url_for, request, flash, session, redi
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from . import config
-from .models import Post, User, Category, Tag
+from .models import Post, User, Category, Tag, Authentication
 from .utilities import admin_required, login_required, Pagination
 from .forms import PostAddForm, RegisterForm, LoginForm
 
@@ -26,7 +26,7 @@ def run_app():
     # get some global objects
     # create tag dictionary for app-wide use
     app.config['post_tags'] = {}
-    for tag in db.query(Tag).all():
+    for tag in Tag.get_all_tags():
         app.config['post_tags'][tag.name] = tag.id
     app.config['categories'] = db.query(Category).all()
     app.run(host=app.config['SERVER_ADDRESS'], port=app.config['SERVER_PORT'], debug=app.config['DEBUG'])
@@ -112,7 +112,7 @@ def login():
     form = LoginForm(request.form)
 
     if request.form:
-        return User.login(form)
+        return Authentication.login(form)
 
     return render_template('login.html', form=form)
 

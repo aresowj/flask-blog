@@ -25,6 +25,88 @@ post_tags = Table('post_tag', Base.metadata,
 logger = logging.getLogger(__name__)
 
 
+def fetch_all_instances(model):
+    """Get all instances of the model from database"""
+    db_session = DBSession()
+    instances = db_session.query(model).all()
+    db_session.close()
+    return instances
+
+
+def fetch_instance_by_primary_key(model, primary_key):
+    if not primary_key:
+        return None
+
+    db_session = DBSession()
+
+    try:
+        return db_session.query(model).filter(model.id == primary_key)
+    except NoResultFound:
+        logger.error("No instance found for %s with id=%s" % (model.__class__, primary_key))
+        return None
+    except MultipleResultsFound:
+        logger.error("Multiple instance found for %s with id=%s" % (model.__class__, primary_key))
+        return None
+    except Exception as e:
+        logger.exception(e)
+        raise e
+    finally:
+        db_session.close()
+
+
+def delete_instance_by_primary_key(model, primary_key):
+    """Delete a certain model instance by its primary key"""
+    db_session = DBSession()
+
+    try:
+        instance = db_session.query(model).filter(model.id == primary_key)
+        db_session.delete(instance)
+        db_session.commit()
+        db_session.close()
+    except NoResultFound:
+        logger.error("No instance found for %s with id=%s" % (model.__class__, primary_key))
+        return False
+    except MultipleResultsFound:
+        logger.error("Multiple instance found for %s with id=%s" % (model.__class__, primary_key))
+        return False
+    except Exception as e:
+        logger.exception(e)
+        raise e
+    finally:
+        db_session.close()
+
+    return True
+
+
+class Authentication(object):
+    @staticmethod
+    def login(form):
+        username = form.username.data
+        password = form.password.data
+        db_session = DBSession()
+
+        try:
+            user = db_session.query(User).filter(User.email == username).one()
+        except NoResultFound:
+            flash(app.config['LOGIN_FAILED_USER_NOT_EXIST'], 'error')
+        except MultipleResultsFound:
+            flash(app.config['LOGIN_FAILED_DUPLICATED_USER'], 'error')
+        else:
+            if not check_password_hash(user.password, password):
+                flash(app.config['LOGIN_FAILED_PASSWORD_NOT_MATCH'], 'error')
+            else:
+                # if password matched
+                session['permanent'] = form.remember.data
+                session['username'] = form.username.data
+                session['is_admin'] = user.is_admin
+                session['user_id'] = user.id
+                return redirect(url_for('index'))
+
+        db_session.close()
+
+        return redirect(url_for('login'))
+    
+
 class User(Base):
     """Define user model"""
     __tablename__ = 'users'
@@ -43,8 +125,10 @@ class User(Base):
             try:
                 # no user id populated, adding new user
                 self.password = generate_password_hash(self.password, method='pbkdf2:sha256')
-                app.db.add(self)
-                app.db.commit()
+                db_session = DBSession()
+                db_session.add(self)
+                db_session.commit()
+                db_session.close()
                 return True
             except DBAPIError as e:
                 logger.exception(e)
@@ -55,43 +139,22 @@ class User(Base):
             raise NotImplementedError
 
     @staticmethod
-    def login(form):
-        username = form.username.data
-        password = form.password.data
-
-        try:
-            user = app.db.query(User).filter(User.email == username).one()
-        except NoResultFound:
-            flash(app.config['LOGIN_FAILED_USER_NOT_EXIST'], 'error')
-        except MultipleResultsFound:
-            flash(app.config['LOGIN_FAILED_DUPLICATED_USER'], 'error')
-        else:
-            if not check_password_hash(user.password, password):
-                flash(app.config['LOGIN_FAILED_PASSWORD_NOT_MATCH'], 'error')
-            else:
-                # if password matched
-                session['permanent'] = form.remember.data
-                session['username'] = form.username.data
-                session['is_admin'] = user.is_admin
-                session['user_id'] = user.id
-                return redirect(url_for('index'))
-
-        return redirect(url_for('login'))
-
-    @staticmethod
     def get_user_by_email(email):
-        """
-        get user by email
+        """get user by email
         :param email: the email of that user
         :return:
         """
+        db_session = DBSession()
         
         try:
-            user = app.db.query(User).filter(User.email == email).one()
+            user = db_session.query(User).filter(User.email == email).one()
         except NoResultFound:
             return None
         except MultipleResultsFound:
             return None
+        finally:
+            db_session.close()
+            
         return user
 
 
@@ -113,21 +176,26 @@ class Post(Base):
 
     @staticmethod
     def get_posts(limit, skip, tag_name=None, query=None):
-        posts = []
-        total_count = 0
+        db_session = DBSession()
+        
         if tag_name:
-            total_count = app.db.query(Post).join(Post.tags).filter(Tag.name == tag_name).count()
-            posts = (app.db.query(Post).options(joinedload('tags'))
+            total_count = db_session.query(Post).join(Post.tags).filter(Tag.name == tag_name).count()
+            posts = (db_session.query(Post).options(joinedload('tags'))
                      .filter(Post.tags.any(Tag.name == tag_name)).order_by(Post.id.desc())[skip:skip + limit])
         elif query:
-            pass
+            raise NotImplementedError
         else:
-            total_count = app.db.query(Post.id).count()
-            posts = app.db.query(Post).options(joinedload('tags')).order_by(Post.id.desc())[skip:skip + limit]
+            total_count = db_session.query(Post.id).count()
+            posts = db_session.query(Post).options(joinedload('tags')).order_by(Post.id.desc())[skip:skip + limit]
+
+        db_session.close()
+        
         return posts, total_count
 
     @staticmethod
     def update_post(post, form):
+        db_session = DBSession()
+        
         try:
             post.title = form.title.data
             post.content = form.content.data
@@ -144,17 +212,21 @@ class Post(Base):
                     post.tags.append(new_tag)
                     app.config['post_tags'][new_tag.name] = new_tag.id
                 else:
-                    post.tags.append(db.query(Tag).filter(Tag.name == form_tag).first())
+                    post.tags.append(db_session.query(Tag).filter(Tag.name == form_tag).first())
             if not post.author_id:  # insert author id for new posts
                 post.author_id = session['user_id']
             else:  # update last modify time for existing posts
                 post.last_modified = datetime.now()
-            app.db.add(post)
-            app.db.commit()
+            
+            db_session.add(post)
+            db_session.commit()
+            
             return True
         except DBAPIError as e:
             logger.exception(e)
             return False
+        finally:
+            db_session.close()
 
     @staticmethod
     def delete_post_by_id(post_id):
@@ -165,20 +237,16 @@ class Post(Base):
 
     @staticmethod
     def get_post_by_id(post_id=None):
-        if not post_id:
-            return Post()
-        post = app.db.query(Post).get(post_id)
-
-        return post
+        return fetch_instance_by_primary_key(Post, post_id)
 
     @staticmethod
     def increase_post_view_by_one(post):
         if post:
             post.view_count += 1
-            with app.db():
-                app.db.add(post)
-                app.db.commit()
-
+            db_session = DBSession()
+            db_session.add(post)
+            db_session.commit()
+            db_session.close()
 
 
 class Attachment(Base):
@@ -222,3 +290,7 @@ class Tag(Base):
 
     def __repr__(self):
         return self.name
+    
+    @staticmethod
+    def get_all_tags():
+        return fetch_all_instances(Tag)
