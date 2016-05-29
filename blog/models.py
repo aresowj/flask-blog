@@ -50,7 +50,6 @@ def fetch_instance_by_primary_key(model, primary_key):
         logger.exception(e)
         raise e
 
-    print("\nPost: %s \n" % instance)
     return instance
 
 

@@ -1,7 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import logging
-from flask import Flask, Response
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from flask import Flask
 from . import config
 from .database import Database
 
@@ -11,19 +11,16 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.secret_key = app.config['SECRET_KEY']
 app.config.from_object(config)
-# initialize database connection
-db_engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], encoding=app.config['DB_CHARSET'], echo=True)
-app.db_engine = db_engine
-DBSession = sessionmaker(bind=db_engine)  # bind engine to session object
-app.db = Database(DBSession)
-# get some global objects
-# create tag dictionary for app-wide use
+app.db = Database(app)
 
 
-@app.after_request
-def close_session(response=None):
-    if not app.db.close_current_session():
-        logger.error("Could not close current session.")
-    return response
+@app.teardown_request
+def close_session(exception=None):
+    if not exception:
+        app.db.remove_current_session()
+    else:
+        app.db.roll_back_current_session()
+        app.db.remove_current_session()
+
 
 import blog.views
