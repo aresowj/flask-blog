@@ -16,6 +16,8 @@ db_engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], encoding=app.co
 app.db_engine = db_engine
 DBSession = sessionmaker(bind=db_engine)  # bind engine to session object
 app.db = Database(DBSession)
+# get some global objects
+# create tag dictionary for app-wide use
 
 
 @app.after_request
