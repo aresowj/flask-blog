@@ -9,14 +9,15 @@ class TagInputField(StringField):
     def _value(self):
         if not isinstance(self.data, str):
             tag_names = []
-            for tag in self.data:
-                tag_names.append(tag.name)
+            if self.data:
+                for tag in self.data:
+                    tag_names.append(tag.name)
             return text_type(','.join(tag_names)) if tag_names is not None else ''
         else:
             return super(TagInputField, self)._value()
 
 
-class PostAddForm(Form):
+class PostEditForm(Form):
     id = IntegerField('ID', id='id')
     title = StringField('Title', id='title', validators=[DataRequired()])
     content = TextAreaField('Content', id='content', validators=[DataRequired()])

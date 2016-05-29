@@ -2,34 +2,11 @@
 
 import json
 import markdown2
-from datetime import datetime
-from flask import Flask, render_template, url_for, request, flash, session, redirect, Markup
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from . import config
-from .models import Post, User, Category, Tag, Authentication
+from flask import render_template, url_for, request, flash, session, redirect, Markup
+from blog import app
+from .models import Post, User, Authentication
 from .utilities import admin_required, login_required, Pagination
-from .forms import PostAddForm, RegisterForm, LoginForm
-
-
-# initialize app
-app = Flask(__name__)
-app.secret_key = app.config['SECRET_KEY']
-app.config.from_object(config)
-
-# initialize database connection
-db_engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'], encoding=app.config['DB_CHARSET'], echo=True)
-DBSession = sessionmaker(bind=db_engine)  # bind engine to session object
-
-
-def run_app():
-    # get some global objects
-    # create tag dictionary for app-wide use
-    app.config['post_tags'] = {}
-    for tag in Tag.get_all_tags():
-        app.config['post_tags'][tag.name] = tag.id
-    app.config['categories'] = db.query(Category).all()
-    app.run(host=app.config['SERVER_ADDRESS'], port=app.config['SERVER_PORT'], debug=app.config['DEBUG'])
+from .forms import PostEditForm, RegisterForm, LoginForm
 
 
 @app.route('/', defaults={'page': 1, 'tag_name': None})
@@ -78,20 +55,21 @@ def post_view(post_id=None, post_name=None):
 def post_edit(post_id=None):
     if post_id:
         post = Post.get_post_by_id(post_id)
+        print("Post %s " % post)
         success_message = app.config['POST_EDIT_SUCCEED']
     else:
         post = Post()
         success_message = app.config['POST_ADD_SUCCEED']
-    form = PostAddForm(request.form, post)
+
+    form = PostEditForm(request.form, post)
 
     if request.form:
         if form.validate():
-
-            flash(success_message, 'success')
-
-            return redirect(url_for('post_edit', post_id=post.id))
-
-        flash(app.config['FORM_ERROR'], 'error')
+            if Post.update_post(post, form):
+                flash(success_message, 'success')
+                return redirect(url_for('post_edit', post_id=post.id))
+        else:
+            flash(app.config['FORM_ERROR'], 'error')
 
     available_tags = list(app.config['post_tags'].keys())
     return render_template('post_edit.html', form=form, tags=available_tags)

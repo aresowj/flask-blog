@@ -1,5 +1,6 @@
 # -*- coding: utf-8; -*-
 
+import logging
 from .local_settings import *
 
 
@@ -19,6 +20,11 @@ from .local_settings import *
 
 SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://' + DB_USER_NAME + ':' + DB_PASSWORD + \
                     '@' + DB_HOST_NAME + '/' + DB_DATABASE_NAME + '?charset=' + DB_CHARSET
+
+if DEBUG:
+    logging.basicConfig(level=logging.DEBUG)
+else:
+    logging.basicConfig(level=logging.INFO)
 
 POSTS_PER_PAGE = 10
 MIN_PASSWORD_LENGTH = 8
