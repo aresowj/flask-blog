@@ -58,7 +58,6 @@ def delete_instance_by_primary_key(model, primary_key):
     try:
         instance = app.db.session.query(model).filter(model.id == primary_key)
         app.db.session.delete(instance)
-        app.db.session.commit()
     except NoResultFound:
         logger.error("No instance found for %s with id=%s" % (model.__class__, primary_key))
         return False
@@ -117,7 +116,6 @@ class User(Base):
                 # no user id populated, adding new user
                 self.password = generate_password_hash(self.password, method='pbkdf2:sha256')
                 app.db.session.add(self)
-                app.db.session.commit()
                 return True
             except DBAPIError as e:
                 logger.exception(e)
@@ -131,13 +129,15 @@ class User(Base):
     def get_user_by_email(email):
         """get user by email
         :param email: the email of that user
-        :return:
+        :return: user instance
         """
         try:
             user = app.db.session.query(User).filter(User.email == email).one()
         except NoResultFound:
+            logger.error('No user found for email=%s' % email)
             return None
         except MultipleResultsFound:
+            logger.error('More than one user found for email=%s !' % email)
             return None
 
         return user
@@ -162,14 +162,20 @@ class Post(Base):
     @staticmethod
     def get_posts(limit, skip, tag_name=None, query=None):
         if tag_name:
-            total_count = app.db.session.query(Post).join(Post.tags).filter(Tag.name == tag_name).count()
-            posts = (app.db.session.query(Post).options(joinedload('tags'))
-                     .filter(Post.tags.any(Tag.name == tag_name)).order_by(Post.id.desc())[skip:skip + limit])
+            total_count = (app.db.session.query(Post).join(Post.tags)
+                           .filter(Tag.name == tag_name)
+                           .count())
+            posts = (app.db.session.query(Post)
+                     .options(joinedload('tags'))
+                     .filter(Post.tags.any(Tag.name == tag_name))
+                     .order_by(Post.id.desc())[skip:skip + limit])
         elif query:
             raise NotImplementedError
         else:
             total_count = app.db.session.query(Post.id).count()
-            posts = app.db.session.query(Post).options(joinedload('tags')).order_by(Post.id.desc())[skip:skip + limit]
+            posts = (app.db.session.query(Post)
+                     .options(joinedload('tags'))
+                     .order_by(Post.id.desc())[skip:skip + limit])
 
         return posts, total_count
 
@@ -199,7 +205,6 @@ class Post(Base):
                 post.last_modified = datetime.now()
 
             app.db.session.add(post)
-            app.db.session.commit()
 
             return True
         except DBAPIError as e:
@@ -209,7 +214,6 @@ class Post(Base):
     @staticmethod
     def delete_post_by_id(post_id):
         app.db.session.delete(Post(post_id))
-        app.db.session.commit()
 
     @staticmethod
     def get_post_by_id(post_id=None):
@@ -220,7 +224,6 @@ class Post(Base):
         if post:
             post.view_count += 1
             app.db.session.add(post)
-            app.db.session.commit()
 
 
 class Attachment(Base):

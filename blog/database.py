@@ -6,7 +6,6 @@
 import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.exc import OperationalError
 from blog import config
 
 
@@ -25,19 +24,14 @@ class Database(object):
     def set_db_engine(self):
         self._db_engine = create_engine(config.SQLALCHEMY_DATABASE_URI,
                                         encoding=config.DB_CHARSET,
-                                        pool_recycle=60,
+                                        pool_recycle=3600,
+                                        pool_size=500,
                                         echo=config.DEBUG)
 
     @property
     def db_engine(self):
         if not self._db_engine:
             self.set_db_engine()
-        else:
-            try:
-                self.session.query("SELECT 1")
-            except OperationalError:
-                # re-establish the connection if database is down
-                self._db_engine.dispose()
 
         return self._db_engine
 
@@ -57,6 +51,11 @@ class Database(object):
             self._current_session = self.db_session_class()
 
         return self._current_session
+
+    def dispose_pool(self):
+        """Call this function to dispose all connections in the pool
+        when exception occurs"""
+        self._db_engine.dispose()
 
     def remove_current_session(self):
         if not self._current_session:

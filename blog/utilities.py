@@ -82,6 +82,3 @@ class Pagination(object):
         end = self.pages if self.page + side_count >= self.pages else self.page + side_count
         for i in range(start, end + 1):
             yield i
-
-
-

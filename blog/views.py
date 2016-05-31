@@ -139,7 +139,3 @@ def api_available_tags():
     else:
         available_tags = all_tags
     return json.dumps(available_tags)
-
-if __name__ == '__main__':
-    run_app()
-
