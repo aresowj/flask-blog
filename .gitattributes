@@ -1,0 +1,5 @@
+static/css/ linguist-vendored
+static/css/main.css linguist-vendored=False
+static/js/ linguist-vendored
+static/js/main.js linguist-vendored=False
+README.md linguist-documentation
