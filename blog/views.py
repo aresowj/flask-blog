@@ -1,8 +1,6 @@
 # -*- coding: utf-8; -*-
 
-import json
-import markdown2
-from flask import render_template, url_for, request, flash, session, redirect, Markup
+from flask import render_template, url_for, request, flash, session, redirect
 from blog import app
 from .models import Post, User, Authentication
 from .utilities import admin_required, login_required, Pagination
@@ -122,20 +120,3 @@ def sign_up():
 @app.route('/about')
 def about():
     return render_template('about.html')
-
-
-@app.template_filter('parse_markdown')
-def parse_markdown(markdown_text):
-    return Markup(markdown2.markdown(markdown_text))
-
-
-# APIs
-@app.route('/api/v1/available_tags', methods=['GET'])
-def api_available_tags():
-    tag_keyword = request.args.get('term', None)
-    all_tags = list(app.config['post_tags'].keys())
-    if tag_keyword:
-        available_tags = [tag_name for tag_name in all_tags if tag_keyword.lower() in tag_name.lower()]
-    else:
-        available_tags = all_tags
-    return json.dumps(available_tags)

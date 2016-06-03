@@ -15,6 +15,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from blog import app
 
 
+CATEGORY_ORDER_BY_NAME = 'name'
+CATEGORY_ORDER_BY_ID = 'id'
+CATEGORY_ORDER_BY_VERBOSE_NAME = 'verbose_name'
+
+
 Base = declarative_base()
 post_tags = Table('post_tag', Base.metadata,
                   Column('post_id', Integer, ForeignKey('posts.id')),
@@ -253,6 +258,27 @@ class Category(Base):
     parent_id = Column(Integer, ForeignKey('categories.id'), default=None)
 
     children = relationship('Category')
+
+    @classmethod
+    def fetch_all_categories(cls):
+        """Get all categories (both parents and children) from
+        database for further assembly"""
+        return app.db.query(cls).all()
+
+    @classmethod
+    def fetch_all_top_categories(cls):
+        """Only fetch the categories with no parent"""
+        return app.db.query(cls).filter(Category.parent_id is None)
+
+    @classmethod
+    def fetch_all_children(cls, parent_id, order_by=CATEGORY_ORDER_BY_NAME):
+        """Fetch all children of a given parent category"""
+        return app.db.query(Category).filter(Category.parent_id == parent_id).order_by(order_by)
+
+    @classmethod
+    def fetch_category_by_id(cls, cate_id):
+        """Fetch a particular category with its primary key"""
+        return app.db.query(Category).get(cate_id)
 
 
 class Tag(Base):

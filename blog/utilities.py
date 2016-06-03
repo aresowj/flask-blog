@@ -1,7 +1,8 @@
 # -*- coding: utf-8; -*-
 
+import markdown2
 from math import ceil
-from flask import current_app as app, session, redirect, url_for, flash
+from flask import current_app as app, session, redirect, url_for, flash, Markup
 from functools import wraps
 from wtforms import ValidationError
 from .models import User
@@ -82,3 +83,8 @@ class Pagination(object):
         end = self.pages if self.page + side_count >= self.pages else self.page + side_count
         for i in range(start, end + 1):
             yield i
+
+
+@app.template_filter('parse_markdown')
+def parse_markdown(markdown_text):
+    return Markup(markdown2.markdown(markdown_text))
