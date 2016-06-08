@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from flask import Flask
-from . import config
-from .database import Database
+from app import app
+
 
 logger = logging.getLogger(__name__)
-
-# initialize app
-app = Flask(__name__)
-app.secret_key = app.config['SECRET_KEY']
-app.config.from_object(config)
-app.db = Database(app)
 
 
 @app.teardown_request
@@ -25,4 +18,4 @@ def close_session(exception=None):
         app.db.dispose_pool()
 
 
-import blog.views
+import views

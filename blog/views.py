@@ -1,10 +1,10 @@
 # -*- coding: utf-8; -*-
 
 from flask import render_template, url_for, request, flash, session, redirect
-from blog import app
-from .models import Post, User, Authentication
-from .utilities import admin_required, login_required, Pagination
-from .forms import PostEditForm, RegisterForm, LoginForm
+from models import Post, User, Authentication
+from utilities import admin_required, login_required, Pagination
+from forms import PostEditForm, RegisterForm, LoginForm
+from app import app
 
 
 @app.route('/', defaults={'page': 1, 'tag_name': None})

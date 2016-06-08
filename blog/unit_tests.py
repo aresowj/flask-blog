@@ -5,6 +5,9 @@
 
 
 import unittest
+from flask import render_template
+from views import index, login, logout, posts_list, categories_list, post_view, \
+    post_edit, delete_post, sign_up, about
 
 
 __author__ = 'Ares Ou'
@@ -47,7 +50,7 @@ class UtilitiesUnitTest(unittest.TestCase):
         pass
 
 
-class APIsUnitTest(unittest.TestCase):
+class APIUnitTest(unittest.TestCase):
     def test_api_available_tags(self):
         pass
 

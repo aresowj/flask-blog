@@ -6,7 +6,7 @@
 import logging
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from blog import config
+import config
 
 
 logger = logging.getLogger(__name__)

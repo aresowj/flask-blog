@@ -10,9 +10,8 @@ from sqlalchemy.orm import relationship, backref, joinedload
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
-from flask import redirect, url_for, flash, session
+from flask import redirect, url_for, flash, session, current_app as app
 from werkzeug.security import generate_password_hash, check_password_hash
-from blog import app
 
 
 CATEGORY_ORDER_BY_NAME = 'name'

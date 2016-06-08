@@ -1,7 +1,7 @@
 # -*- coding: utf-8; -*-
 
 import logging
-from .local_settings import *
+from local_settings import *
 
 
 ##################################################
