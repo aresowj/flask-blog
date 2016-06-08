@@ -28,13 +28,12 @@ After setting up paraemters in `local_settings.py`, you can use below command to
 
 | Module                 | statements | missing | excluded | coverage |
 |------------------------|------------|---------|----------|----------|
-| Total                  | 484        | 227     | 0        | 53%      |
 | blog/app.py            | 9          | 0       | 0        | 100%     |
 | blog/config.py         | 39         | 1       | 0        | 97%      |
 | blog/database.py       | 46         | 25      | 0        | 46%      |
 | blog/forms.py          | 29         | 7       | 0        | 76%      |
 | blog/local_settings.py | 9          | 0       | 0        | 100%     |
 | blog/models.py         | 182        | 107     | 0        | 41%      |
-| blog/unit_tests.py     | 39         | 13      | 0        | 67%      |
 | blog/utilities.py      | 52         | 26      | 0        | 50%      |
 | blog/views.py          | 79         | 48      | 0        | 39%      |
+| **Total**                 | **445**        | **214**     | **0**        | **52%**      |
