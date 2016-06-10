@@ -2,12 +2,13 @@
 
 from flask import render_template, url_for, request, flash, session, redirect
 from models import Post, User, Authentication
+import config
 from utilities import admin_required, login_required, Pagination
 from forms import PostEditForm, RegisterForm, LoginForm
 from app import app
 
 
-@app.route('/', defaults={'page': 1, 'tag_name': None})
+@app.route(config.PATH_INDEX, defaults={'page': 1, 'tag_name': None})
 @app.route('/page-<int:page>')
 @app.route('/tag/<tag_name>', defaults={'page': 1})
 @app.route('/tag/<tag_name>/page-<int:page>')
@@ -19,10 +20,10 @@ def index(page=1, tag_name=None):
     return render_template('index.html', posts=posts, pagination=pagination, tag_name=tag_name)
 
 
-@app.route('/posts', defaults={'page': 1})
+@app.route(config.PATH_POST_LIST, defaults={'page': 1})
 @app.route('/posts/page-<int:page>')
 @admin_required()
-def posts_list(page=None):
+def admin_post_list(page=None):
     posts, total_count = Post.get_posts(app.config['POSTS_PER_PAGE'], (page - 1) * app.config['POSTS_PER_PAGE'])
     pagination = Pagination(page, app.config['POSTS_PER_PAGE'], total_count)
 

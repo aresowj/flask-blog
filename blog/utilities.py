@@ -53,7 +53,8 @@ def admin_required():
     def wrapper(f):
         @wraps(f)
         def wrapped(*args, **kwargs):
-            if not session['is_admin']:
+            is_admin = session.get('is_admin', None)
+            if not is_admin:
                 flash(app.config['PERMISSION_NOT_HAVE'], 'error')
                 return redirect(url_for('index'))
             return f(*args, **kwargs)

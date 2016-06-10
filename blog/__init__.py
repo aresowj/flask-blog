@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""App initialization part, registering global
+methods or procedures to the app instance.
+"""
+
 import logging
 from app import app
 

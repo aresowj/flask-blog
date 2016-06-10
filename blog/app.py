@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""Set up of a Flask app, to be imported
+by other files.
+"""
+
 import logging
 from flask import Flask
 import config
