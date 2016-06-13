@@ -1,10 +1,11 @@
 # -*- coding: utf-8; -*-
 
-import markdown2
+
 from math import ceil
-from flask import session, redirect, url_for, flash, Markup
+from flask import session, redirect, url_for, flash
 from functools import wraps
 from wtforms import ValidationError
+import config
 from app import app
 from models import User
 
@@ -16,9 +17,9 @@ def password_strength(form, field):
     :param field: passed from WTForms
     :return: nothing
     """
-    if len(field.data) < app.config['MIN_PASSWORD_LENGTH']:
+    if len(field.data) < config.MIN_PASSWORD_LENGTH:
         raise ValidationError('Password must be longer than %d characters' %
-                              app.config['MIN_PASSWORD_LENGTH'])
+                              config.MIN_PASSWORD_LENGTH)
     if field.data.isnumeric() or field.data.isalpha():
         raise ValidationError('Password must contain at least one letter and one number!')
 
@@ -41,9 +42,9 @@ def login_required():
     def wrapper(f):
         @wraps(f)
         def wrapped(*args, **kwargs):
-            if not session.get('username'):
-                flash(app.config['PERMISSION_NOT_LOGGED_IN'], 'error')
-                return redirect(url_for('login'))
+            if not session.get(config.SESSION_KEY_USERNAME, None):
+                flash(config.PERMISSION_NOT_LOGGED_IN, 'error')
+                return redirect(url_for(config.PATH_LOGIN))
             return f(*args, **kwargs)
         return wrapped
     return wrapper
@@ -53,10 +54,10 @@ def admin_required():
     def wrapper(f):
         @wraps(f)
         def wrapped(*args, **kwargs):
-            is_admin = session.get('is_admin', None)
+            is_admin = session.get(config.SESSION_KEY_IS_ADMIN, None)
             if not is_admin:
-                flash(app.config['PERMISSION_NOT_HAVE'], 'error')
-                return redirect(url_for('index'))
+                flash(config.PERMISSION_NOT_HAVE, 'error')
+                return redirect(url_for(config.END_POINT_INDEX))
             return f(*args, **kwargs)
         return wrapped
     return wrapper
@@ -85,8 +86,3 @@ class Pagination(object):
         end = self.pages if self.page + side_count >= self.pages else self.page + side_count
         for i in range(start, end + 1):
             yield i
-
-
-@app.template_filter('parse_markdown')
-def parse_markdown(markdown_text):
-    return Markup(markdown2.markdown(markdown_text))

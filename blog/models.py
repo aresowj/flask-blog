@@ -12,6 +12,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from flask import redirect, url_for, flash, session, current_app as app
 from werkzeug.security import generate_password_hash, check_password_hash
+import config
 
 
 CATEGORY_ORDER_BY_NAME = 'name'
@@ -96,7 +97,7 @@ class Authentication(object):
                 session['username'] = form.username.data
                 session['is_admin'] = user.is_admin
                 session['user_id'] = user.id
-                return redirect(url_for('index'))
+                return redirect(url_for(config.END_POINT_INDEX))
 
         return redirect(url_for('login'))
 

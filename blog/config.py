@@ -66,3 +66,13 @@ FORM_ERROR = 'There\'s some error in your form.'
 # View path strings
 PATH_INDEX = '/'
 PATH_POST_LIST = '/posts'
+PATH_LOGIN = '/login'
+PATH_SIGN_UP = '/sign_up'
+
+# End point names
+END_POINT_INDEX = 'index'
+END_POINT_LOGIN = 'login'
+
+# Other keys
+SESSION_KEY_USERNAME = 'username'
+SESSION_KEY_IS_ADMIN = 'is_admin'

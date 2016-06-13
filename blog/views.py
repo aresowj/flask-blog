@@ -32,7 +32,7 @@ def admin_post_list(page=None):
 
 @app.route('/categories')
 @admin_required()
-def categories_list():
+def admin_categories_list():
     for cat in app.config['categories']:
         print(cat.children)
     return render_template('categories_manage.html')
@@ -84,7 +84,7 @@ def delete_post(post_id=None, redirect_target='index'):
     return redirect(url_for(redirect_target))
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route(config.PATH_LOGIN, methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
 
@@ -98,10 +98,10 @@ def login():
 @login_required()
 def logout():
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for(config.PATH_INDEX))
 
 
-@app.route('/signup', methods=['GET', 'POST'])
+@app.route(config.PATH_SIGN_UP, methods=['GET', 'POST'])
 def sign_up():
     form = RegisterForm(request.form)
 
@@ -109,11 +109,11 @@ def sign_up():
         user = User()
         form.populate_obj(user)
         if user.update_user():
-            flash(app.config['REGISTRATION_SUCCEED'], 'success')
-            return redirect(url_for('login'))
+            flash(config.REGISTRATION_SUCCEED, 'success')
+            return redirect(url_for(config.PATH_LOGIN))
         else:
-            flash(app.config['REGISTRATION_FAILED'], 'error')
-            return redirect(url_for('sign_up'))
+            flash(config.REGISTRATION_FAILED, 'error')
+            return redirect(url_for(config.PATH_SIGN_UP))
 
     return render_template('register.html', form=form)
 
