@@ -62,16 +62,12 @@ PERMISSION_NOT_LOGGED_IN = 'You must be logged in first.'
 PERMISSION_NOT_HAVE = 'Sorry, you do not have permission.'
 FORM_ERROR = 'There\'s some error in your form.'
 
-
-# View path strings
-PATH_INDEX = '/'
-PATH_POST_LIST = '/posts'
-PATH_LOGIN = '/login'
-PATH_SIGN_UP = '/sign_up'
-
 # End point names
 END_POINT_INDEX = 'index'
 END_POINT_LOGIN = 'login'
+END_POINT_ADMIN_POST_LIST = 'admin_post_list'
+END_POINT_ADMIN_CATEGORY_LIST = 'admin_categories_list'
+END_POINT_SIGN_UP = 'sign_up'
 
 # Other keys
 SESSION_KEY_USERNAME = 'username'

@@ -83,7 +83,7 @@ class Authentication(object):
         password = form.password.data
 
         try:
-            user = app.db.session.query(User).filter(User.email == username).one()
+            user = User.get_user_by_email(username)
         except NoResultFound:
             flash(app.config['LOGIN_FAILED_USER_NOT_EXIST'], 'error')
         except MultipleResultsFound:

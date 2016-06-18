@@ -6,36 +6,62 @@
 
 import unittest
 from unittest import mock
-from flask import session, Response
+from flask import session, Response, url_for, request
 from flask_api import status as http_status
+from werkzeug.security import generate_password_hash
 from wtforms import ValidationError
 import app as app_module
 import config
 import views as views_module
+from models import Post, Authentication, User
+from forms import LoginForm
 from utilities import password_strength
 
 
 __author__ = 'Ares Ou'
 
 
+TEST_POST_TITLE = 'Test Post for Unit Test'
+TEST_POST_CONTENT = ''
+TEST_USER_NAME = 'admin'
+TEST_USER_PASSWORD = 'admin'
+TEST_USER_EMAIL = 'admin@admin.com'
+
 app = app_module.app
 
+test_post = Post()
+test_post.title = TEST_POST_TITLE
+test_post.content = TEST_POST_CONTENT
 
-def login_as_normal_user():
-    session[config.SESSION_KEY_USERNAME] = 'test'
+test_admin_user = User()
+test_admin_user.password = generate_password_hash(TEST_USER_PASSWORD, method='pbkdf2:sha256')
+test_admin_user.email = TEST_USER_EMAIL
+test_admin_user.name = TEST_USER_NAME
+test_admin_user.is_admin = True
+
+
+def return_login_form(user):
+    form = LoginForm()
+    form.username.data = user.email
+    form.password.data = TEST_USER_PASSWORD
+    form.remember.data = True
+    return form
 
 
 class UnitTestBase(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
+        app.config['SERVER_NAME'] = 'localhost'
+        app.db = mock.Mock()
         self.client = app.test_client()
 
 
 class ViewsUnitTest(UnitTestBase):
     def test_index(self):
         with mock.patch('models.Post.get_posts', return_value=([], 0)), \
-             mock.patch('utilities.Pagination', return_value=[]):
-            response = self.client.get(config.PATH_INDEX)
+             mock.patch('utilities.Pagination', return_value=[]), \
+             app.app_context():
+            response = self.client.get(url_for(config.END_POINT_INDEX))
             # assert got response
             self.assertIsInstance(response, Response)
             # assert get OK
@@ -45,14 +71,21 @@ class ViewsUnitTest(UnitTestBase):
 
     def test_admin_post_list(self):
         with mock.patch('models.Post.get_posts', return_value=([], 0)), \
-             mock.patch('utilities.Pagination', return_value=[]):
-            response = self.client.get(config.PATH_POST_LIST)
+             mock.patch('utilities.Pagination', return_value=[]), \
+             app.app_context():
+            response = self.client.get(url_for(config.END_POINT_ADMIN_POST_LIST))
             # not logged in, the user should be redirected to the index page,
             # thus a status code of 302 is returned.
             self.assertEqual(response.status_code, http_status.HTTP_302_FOUND)
-            # login and test again
+            # login as admin and test again
+            with mock.patch('models.User.get_user_by_email', return_value=test_admin_user):
+                response = self.client.post(url_for(config.END_POINT_LOGIN), data={
+                    'username': TEST_USER_EMAIL,
+                    'password': TEST_USER_PASSWORD
+                }, follow_redirects=True)
+                self.assertEqual(response.status_code, http_status.HTTP_200_OK)
 
-    def test_categories_list(self):
+    def test_admin_category_list(self):
         pass
 
     def test_post_view(self):

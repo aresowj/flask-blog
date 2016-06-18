@@ -44,7 +44,7 @@ def login_required():
         def wrapped(*args, **kwargs):
             if not session.get(config.SESSION_KEY_USERNAME, None):
                 flash(config.PERMISSION_NOT_LOGGED_IN, 'error')
-                return redirect(url_for(config.PATH_LOGIN))
+                return redirect(url_for(config.END_POINT_LOGIN))
             return f(*args, **kwargs)
         return wrapped
     return wrapper

@@ -8,7 +8,7 @@ from forms import PostEditForm, RegisterForm, LoginForm
 from app import app
 
 
-@app.route(config.PATH_INDEX, defaults={'page': 1, 'tag_name': None})
+@app.route('/', defaults={'page': 1, 'tag_name': None})
 @app.route('/page-<int:page>')
 @app.route('/tag/<tag_name>', defaults={'page': 1})
 @app.route('/tag/<tag_name>/page-<int:page>')
@@ -20,8 +20,8 @@ def index(page=1, tag_name=None):
     return render_template('index.html', posts=posts, pagination=pagination, tag_name=tag_name)
 
 
-@app.route(config.PATH_POST_LIST, defaults={'page': 1})
-@app.route('/posts/page-<int:page>')
+@app.route('/admin/post', defaults={'page': 1})
+@app.route('/admin/post/page-<int:page>')
 @admin_required()
 def admin_post_list(page=None):
     posts, total_count = Post.get_posts(app.config['POSTS_PER_PAGE'], (page - 1) * app.config['POSTS_PER_PAGE'])
@@ -30,16 +30,16 @@ def admin_post_list(page=None):
     return render_template('posts.html', posts=posts, pagination=pagination)
 
 
-@app.route('/categories')
+@app.route('/admin/category')
 @admin_required()
-def admin_categories_list():
+def admin_category_list():
     for cat in app.config['categories']:
         print(cat.children)
     return render_template('categories_manage.html')
 
 
-@app.route('/posts/<int:post_id>', methods=['GET'])
-@app.route('/posts/<int:post_id>/<string:post_name>', methods=['GET'])
+@app.route('/post/<int:post_id>', methods=['GET'])
+@app.route('/post/<int:post_id>/<string:post_name>', methods=['GET'])
 def post_view(post_id=None, post_name=None):
     post = Post.get_post_by_id(post_id)
     # update post view count when it is shown, calculate the view count in a simple way
@@ -84,7 +84,7 @@ def delete_post(post_id=None, redirect_target='index'):
     return redirect(url_for(redirect_target))
 
 
-@app.route(config.PATH_LOGIN, methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(request.form)
 
@@ -98,10 +98,10 @@ def login():
 @login_required()
 def logout():
     session.clear()
-    return redirect(url_for(config.PATH_INDEX))
+    return redirect(url_for(config.END_POINT_INDEX))
 
 
-@app.route(config.PATH_SIGN_UP, methods=['GET', 'POST'])
+@app.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
     form = RegisterForm(request.form)
 
@@ -110,10 +110,10 @@ def sign_up():
         form.populate_obj(user)
         if user.update_user():
             flash(config.REGISTRATION_SUCCEED, 'success')
-            return redirect(url_for(config.PATH_LOGIN))
+            return redirect(url_for(config.END_POINT_LOGIN))
         else:
             flash(config.REGISTRATION_FAILED, 'error')
-            return redirect(url_for(config.PATH_SIGN_UP))
+            return redirect(url_for(config.END_POINT_SIGN_UP))
 
     return render_template('register.html', form=form)
 
