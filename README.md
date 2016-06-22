@@ -24,16 +24,17 @@ After setting up paraemters in `local_settings.py`, you can use below command to
     cd blog/
     python wsgi.py
 
-#### Coverage Status (as per 06/08/2016)
+#### Coverage Status (as per 06/22/2016)
 
 | Module                 | statements | missing | excluded | coverage |
 |------------------------|------------|---------|----------|----------|
-| blog/app.py            | 9          | 0       | 0        | 100%     |
-| blog/config.py         | 39         | 1       | 0        | 97%      |
+| blog/app.py            | 21         | 3       | 0        | 86%      |
+| blog/config.py         | 51         | 1       | 0        | 98%      |
 | blog/database.py       | 46         | 25      | 0        | 46%      |
-| blog/forms.py          | 29         | 7       | 0        | 76%      |
+| blog/forms.py          | 28         | 3       | 0        | 89%      |
 | blog/local_settings.py | 9          | 0       | 0        | 100%     |
-| blog/models.py         | 182        | 107     | 0        | 41%      |
-| blog/utilities.py      | 52         | 26      | 0        | 50%      |
-| blog/views.py          | 79         | 48      | 0        | 39%      |
-| **Total**                 | **445**        | **214**     | **0**        | **52%**      |
+| blog/models.py         | 194        | 98      | 0        | 49%      |
+| blog/unit_tests.py     | 154        | 4       | 0        | 97%      |
+| blog/utilities.py      | 49         | 5       | 0        | 90%      |
+| blog/views.py          | 81         | 13      | 0        | 84%      |
+| **Total**                 | **633**        | **152**     | **0**        | **76%**      |
