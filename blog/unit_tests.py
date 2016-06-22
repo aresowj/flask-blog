@@ -14,7 +14,7 @@ import app as app_module
 import config
 import views as views_module
 from models import Post, User
-from utilities import password_strength
+from utilities import password_strength, user_exists
 
 
 __author__ = 'Ares Ou'
@@ -185,12 +185,24 @@ class ViewsUnitTest(UnitTestBase):
                 self.assertIn(bytes(TEST_USER_EMAIL, encoding='utf-8'), response.data)
 
     def test_about(self):
-        pass
+        with app.app_context():
+            response = self.client.get(url_for(config.END_POINT_ABOUT))
+            self.assertEqual(response.status_code, http_status.HTTP_200_OK)
+            self.assertIn(bytes(config.ABOUT_TITLE, encoding='utf-8'), response.data)
 
 
 class UtilitiesUnitTest(UnitTestBase):
-    def test_parse_markdown(self):
-        pass
+    def test_user_exists(self):
+        field = mock.Mock()
+        field.data = TEST_USER_EMAIL
+        with mock.patch('models.User.get_user_by_email', return_value=None):
+            try:
+                user_exists(None, field)
+            except ValidationError:
+                self.fail('user_exists() raised an exception while no user is returned.')
+        with mock.patch('models.User.get_user_by_email', return_value=test_admin_user):
+            with self.assertRaises(ValidationError):
+                user_exists(None, field)
 
     def test_password_strength(self):
         field = mock.Mock()
@@ -233,6 +245,12 @@ class FormsUnitTest(UnitTestBase):
 
 class ModelUnitTest(UnitTestBase):
     pass
+
+
+class AppUnitTest(UnitTestBase):
+    def test_parse_markdown(self):
+        pass    # nothing to test because this function is using all external libraries
+
 
 
 if __name__ == '__main__':
