@@ -79,18 +79,18 @@ def delete_instance_by_primary_key(model, primary_key):
 class Authentication(object):
     @staticmethod
     def login(form):
-        username = form.username.data
+        username = form.email.data
         password = form.password.data
 
         try:
             user = User.get_user_by_email(username)
         except NoResultFound:
-            flash(app.config['LOGIN_FAILED_USER_NOT_EXIST'], 'error')
+            flash(config.LOGIN_FAILED_USER_NOT_EXIST, 'error')
         except MultipleResultsFound:
-            flash(app.config['LOGIN_FAILED_DUPLICATED_USER'], 'error')
+            flash(config.LOGIN_FAILED_DUPLICATED_USER, 'error')
         else:
             if not check_password_hash(user.password, password):
-                flash(app.config['LOGIN_FAILED_PASSWORD_NOT_MATCH'], 'error')
+                flash(config.LOGIN_FAILED_PASSWORD_NOT_MATCH, 'error')
             else:
                 # if password matched
                 session['permanent'] = form.remember.data
@@ -111,6 +111,15 @@ class User(Base):
     password = Column(String(128), nullable=False)
     name = Column(String(255), nullable=False)
     is_admin = Column(Boolean, default=False)
+
+    @staticmethod
+    def sign_up_user(form):
+        if form.validate():
+            user = User()
+            form.populate_obj(user)
+            return user.update_user()
+
+        return False
 
     def get_user(self, user_id=None):
         raise NotImplementedError

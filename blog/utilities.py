@@ -6,7 +6,6 @@ from flask import session, redirect, url_for, flash
 from functools import wraps
 from wtforms import ValidationError
 import config
-from app import app
 from models import User
 
 
@@ -35,7 +34,7 @@ def user_exists(form, field):
     user = User.get_user_by_email(field.data)
 
     if user is not None:
-        raise ValidationError('This email is already been registered.')
+        raise ValidationError('This email has already been registered.')
 
 
 def login_required():

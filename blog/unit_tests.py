@@ -6,7 +6,7 @@
 
 import unittest
 from unittest import mock
-from flask import session, Response, url_for, request
+from flask import Response, url_for
 from flask_api import status as http_status
 from werkzeug.security import generate_password_hash
 from wtforms import ValidationError
@@ -14,7 +14,6 @@ import app as app_module
 import config
 import views as views_module
 from models import Post, User
-from forms import LoginForm
 from utilities import password_strength
 
 
@@ -26,7 +25,7 @@ DEFAULT_SERVER_NAME = 'localhost'
 TEST_POST_TITLE = 'Test Post for Unit Test'
 TEST_POST_CONTENT = ''
 TEST_USER_NAME = 'admin'
-TEST_USER_PASSWORD = 'admin'
+TEST_USER_PASSWORD = 'admin123abc_'
 TEST_USER_EMAIL = 'admin@admin.com'
 
 app = app_module.app
@@ -41,14 +40,6 @@ test_admin_user.password = generate_password_hash(TEST_USER_PASSWORD, method='pb
 test_admin_user.email = TEST_USER_EMAIL
 test_admin_user.name = TEST_USER_NAME
 test_admin_user.is_admin = True
-
-
-def return_login_form(user):
-    form = LoginForm()
-    form.username.data = user.email
-    form.password.data = TEST_USER_PASSWORD
-    form.remember.data = True
-    return form
 
 
 class UnitTestBase(unittest.TestCase):
@@ -169,7 +160,29 @@ class ViewsUnitTest(UnitTestBase):
             self.assertIn(bytes(config.LOGIN, encoding='utf-8'), response.data)
 
     def test_sign_up(self):
-        pass
+        with app.app_context():
+            # test GET method
+            response = self.client.get(url_for(config.END_POINT_SIGN_UP))
+            self.assertEqual(response.status_code, http_status.HTTP_200_OK)
+            self.assertIn(bytes(config.REGISTRATION, encoding='utf-8'), response.data)
+
+            # test POST method
+            with mock.patch('models.User.get_user_by_email', return_value=test_admin_user), \
+                    mock.patch('models.Post.get_posts', return_value=([], 0)), \
+                    mock.patch('utilities.Pagination', return_value=[]), \
+                    mock.patch('wtforms.Form.validate', return_value=True):
+                response = self.client.post(
+                    url_for(config.END_POINT_SIGN_UP),
+                    data={
+                        'email': TEST_USER_EMAIL,
+                        'password': TEST_USER_PASSWORD,
+                        'password_confirm': TEST_USER_PASSWORD,
+                        'name': TEST_USER_NAME,
+                    }, follow_redirects=True)
+                self.assertEqual(response.status_code, http_status.HTTP_200_OK)
+                self.assertIn(bytes(config.REGISTRATION_SUCCEED, encoding='utf-8'), response.data)
+                # test if logged in as the new signed up user
+                self.assertIn(bytes(TEST_USER_EMAIL, encoding='utf-8'), response.data)
 
     def test_about(self):
         pass

@@ -105,19 +105,18 @@ def logout():
 
 @app.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
+    if not request.form:
+        return render_template('register.html', form=RegisterForm())
+
     form = RegisterForm(request.form)
-
-    if request.form and form.validate():
-        user = User()
-        form.populate_obj(user)
-        if user.update_user():
-            flash(config.REGISTRATION_SUCCEED, 'success')
-            return redirect(url_for(config.END_POINT_LOGIN))
-        else:
-            flash(config.REGISTRATION_FAILED, 'error')
-            return redirect(url_for(config.END_POINT_SIGN_UP))
-
-    return render_template('register.html', form=form)
+    if User.sign_up_user(form):
+        login_form = LoginForm(request.form)
+        Authentication.login(login_form)
+        flash(config.REGISTRATION_SUCCEED, 'success')
+        return redirect(url_for(config.END_POINT_INDEX))
+    else:
+        flash(config.REGISTRATION_FAILED, 'error')
+        return redirect(url_for(config.END_POINT_SIGN_UP))
 
 
 @app.route('/about')
