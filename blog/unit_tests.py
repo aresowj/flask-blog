@@ -145,7 +145,8 @@ class ViewsUnitTest(UnitTestBase):
             self.assertIn(bytes(config.POST_DELETE_FAILED, encoding='utf-8'), response.data)
 
     def test_login(self):
-        with app.app_context():
+        with mock.patch('models.Post.get_posts', return_value=([], 0)), \
+                app.app_context():
             # test get method
             response = self.client.get(config.END_POINT_LOGIN)
             self.assertEqual(response.status_code, http_status.HTTP_200_OK)
@@ -155,7 +156,17 @@ class ViewsUnitTest(UnitTestBase):
             self.assertEqual(response.status_code, http_status.HTTP_200_OK)
 
     def test_logout(self):
-        pass
+        with mock.patch('models.Post.get_posts', return_value=([], 0)), \
+                mock.patch('utilities.Pagination', return_value=[]), \
+                app.app_context():
+            self.login(test_admin_user)
+            response = self.client.get(url_for(config.END_POINT_ADMIN_POST_LIST))
+            # login and access a page requires admin permission
+            self.assertEqual(response.status_code, http_status.HTTP_200_OK)
+            response = self.client.get(url_for(config.END_POINT_LOGOUT), follow_redirects=True)
+            # logout and the client should failed to get an admin page
+            self.assertEqual(response.status_code, http_status.HTTP_200_OK)
+            self.assertIn(bytes(config.LOGIN, encoding='utf-8'), response.data)
 
     def test_sign_up(self):
         pass

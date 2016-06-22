@@ -13,8 +13,8 @@ from app import app
 @app.route('/tag/<tag_name>', defaults={'page': 1})
 @app.route('/tag/<tag_name>/page-<int:page>')
 def index(page=1, tag_name=None):
-    posts, total_count = Post.get_posts(app.config['POSTS_PER_PAGE'],
-                                        (page - 1) * app.config['POSTS_PER_PAGE'], tag_name=tag_name)
+    posts, total_count = Post.get_posts(config.POSTS_PER_PAGE,
+                                        (page - 1) * config.POSTS_PER_PAGE, tag_name=tag_name)
     pagination = Pagination(page, app.config['POSTS_PER_PAGE'], total_count)
 
     return render_template('index.html', posts=posts, pagination=pagination, tag_name=tag_name)
