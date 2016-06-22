@@ -94,12 +94,12 @@ class Authentication(object):
             else:
                 # if password matched
                 session['permanent'] = form.remember.data
-                session['username'] = form.username.data
+                session['username'] = user.email
                 session['is_admin'] = user.is_admin
                 session['user_id'] = user.id
-                return redirect(url_for(config.END_POINT_INDEX))
+                return True
 
-        return redirect(url_for('login'))
+        return False
 
 
 class User(Base):
@@ -218,7 +218,12 @@ class Post(Base):
 
     @staticmethod
     def delete_post_by_id(post_id):
-        app.db.session.delete(Post(post_id))
+        try:
+            app.db.session.delete(Post(post_id))
+            return True
+        except DBAPIError as e:
+            logger.exception(e)
+            return False
 
     @staticmethod
     def get_post_by_id(post_id=None):

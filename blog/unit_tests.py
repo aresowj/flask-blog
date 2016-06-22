@@ -13,12 +13,14 @@ from wtforms import ValidationError
 import app as app_module
 import config
 import views as views_module
-from models import Post, Authentication, User
+from models import Post, User
 from forms import LoginForm
 from utilities import password_strength
 
 
 __author__ = 'Ares Ou'
+
+DEFAULT_SERVER_NAME = 'localhost'
 
 
 TEST_POST_TITLE = 'Test Post for Unit Test'
@@ -28,6 +30,7 @@ TEST_USER_PASSWORD = 'admin'
 TEST_USER_EMAIL = 'admin@admin.com'
 
 app = app_module.app
+app.config['post_tags'] = {}
 
 test_post = Post()
 test_post.title = TEST_POST_TITLE
@@ -51,9 +54,22 @@ def return_login_form(user):
 class UnitTestBase(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
-        app.config['SERVER_NAME'] = 'localhost'
+        app.config['SERVER_NAME'] = DEFAULT_SERVER_NAME
         app.db = mock.Mock()
         self.client = app.test_client()
+
+    def clear_all_cookies(self):
+        self.client.get(url_for(config.END_POINT_LOGOUT))
+
+    def login(self, user):
+        with mock.patch('models.User.get_user_by_email', return_value=user):
+            self.clear_all_cookies()
+            response = self.client.post(url_for(config.END_POINT_LOGIN), data={
+                'username': TEST_USER_EMAIL,
+                'password': TEST_USER_PASSWORD
+            }, follow_redirects=True)
+
+        return response
 
 
 class ViewsUnitTest(UnitTestBase):
@@ -78,27 +94,65 @@ class ViewsUnitTest(UnitTestBase):
             # thus a status code of 302 is returned.
             self.assertEqual(response.status_code, http_status.HTTP_302_FOUND)
             # login as admin and test again
-            with mock.patch('models.User.get_user_by_email', return_value=test_admin_user):
-                response = self.client.post(url_for(config.END_POINT_LOGIN), data={
-                    'username': TEST_USER_EMAIL,
-                    'password': TEST_USER_PASSWORD
-                }, follow_redirects=True)
-                self.assertEqual(response.status_code, http_status.HTTP_200_OK)
+            self.login(test_admin_user)
+            response = self.client.get(url_for(config.END_POINT_ADMIN_POST_LIST))
+            self.assertEqual(response.status_code, http_status.HTTP_200_OK)
 
     def test_admin_category_list(self):
         pass
 
     def test_post_view(self):
-        pass
+        with mock.patch('models.Post.get_post_by_id', return_value=test_post), \
+             mock.patch('models.Post.increase_post_view_by_one'), \
+             app.app_context():
+            response = self.client.get(url_for(config.END_POINT_POST_VIEW, post_id=1))
+            self.assertEqual(response.status_code, http_status.HTTP_200_OK)
+            self.assertIn(bytes(TEST_POST_TITLE, encoding='utf-8'), response.data)
 
-    def test_post_edit(self):
-        pass
+    def test_admin_post_edit(self):
+        with mock.patch('models.Post.get_post_by_id', return_value=test_post), \
+                mock.patch('models.Post.get_posts', return_value=([], 0)), \
+                mock.patch('utilities.Pagination', return_value=[]), \
+                app.app_context():
+            # test for get method, opening an existing post to edit
+            response = self.client.get(url_for(config.END_POINT_ADMIN_POST_LIST, post_id=1))
+            # not logged in as admin, the user should be redirected to the index page,
+            # thus a status code of 302 is returned.
+            self.assertEqual(response.status_code, http_status.HTTP_302_FOUND)
+            # login as admin and test again
+            self.login(test_admin_user)
+            response = self.client.get(url_for(config.END_POINT_ADMIN_POST_EDIT, post_id=1))
+            self.assertEqual(response.status_code, http_status.HTTP_200_OK)
+            self.assertIn(bytes(TEST_POST_TITLE, encoding='utf-8'), response.data)
 
-    def test_delete_post(self):
-        pass
+    def test_admin_delete_post(self):
+        with mock.patch('models.Post.delete_post_by_id', return_value=True), \
+                mock.patch('models.Post.get_posts', return_value=([], 0)), \
+                mock.patch('utilities.Pagination', return_value=[]), \
+                app.app_context():
+            self.login(test_admin_user)
+            response = self.client.get(url_for(config.END_POINT_ADMIN_POST_DELETE, post_id=1), follow_redirects=True)
+            # page redirect to index by default after success deletion
+            self.assertIn(bytes(config.POST_DELETE_SUCCESS, encoding='utf-8'), response.data)
+
+        with mock.patch('models.Post.delete_post_by_id', return_value=False), \
+                mock.patch('models.Post.get_posts', return_value=([], 0)), \
+                mock.patch('utilities.Pagination', return_value=[]), \
+                app.app_context():
+            self.login(test_admin_user)
+            response = self.client.get(url_for(config.END_POINT_ADMIN_POST_DELETE, post_id=1), follow_redirects=True)
+            # page redirect to index by default after success deletion
+            self.assertIn(bytes(config.POST_DELETE_FAILED, encoding='utf-8'), response.data)
 
     def test_login(self):
-        pass
+        with app.app_context():
+            # test get method
+            response = self.client.get(config.END_POINT_LOGIN)
+            self.assertEqual(response.status_code, http_status.HTTP_200_OK)
+            self.assertIn(bytes(config.LOGIN, encoding='utf-8'), response.data)
+            # test post method
+            response = self.login(test_admin_user)
+            self.assertEqual(response.status_code, http_status.HTTP_200_OK)
 
     def test_logout(self):
         pass

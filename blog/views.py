@@ -27,7 +27,7 @@ def admin_post_list(page=None):
     posts, total_count = Post.get_posts(app.config['POSTS_PER_PAGE'], (page - 1) * app.config['POSTS_PER_PAGE'])
     pagination = Pagination(page, app.config['POSTS_PER_PAGE'], total_count)
 
-    return render_template('posts.html', posts=posts, pagination=pagination)
+    return render_template('admin/posts.html', posts=posts, pagination=pagination)
 
 
 @app.route('/admin/category')
@@ -35,7 +35,7 @@ def admin_post_list(page=None):
 def admin_category_list():
     for cat in app.config['categories']:
         print(cat.children)
-    return render_template('categories_manage.html')
+    return render_template('admin/category.html')
 
 
 @app.route('/post/<int:post_id>', methods=['GET'])
@@ -48,13 +48,12 @@ def post_view(post_id=None, post_name=None):
     return render_template('post_view.html', post=post)
 
 
-@app.route('/posts/edit/<int:post_id>', methods=['GET', 'POST'])
-@app.route('/posts/add', methods=['GET', 'POST'])
+@app.route('/admin/posts/edit/<int:post_id>', methods=['GET', 'POST'])
+@app.route('/admin/posts/add', methods=['GET', 'POST'])
 @admin_required()
-def post_edit(post_id=None):
+def admin_post_edit(post_id=None):
     if post_id:
         post = Post.get_post_by_id(post_id)
-        print("Post %s " % post)
         success_message = app.config['POST_EDIT_SUCCEED']
     else:
         post = Post()
@@ -66,21 +65,21 @@ def post_edit(post_id=None):
         if form.validate():
             if Post.update_post(post, form):
                 flash(success_message, 'success')
-                return redirect(url_for('post_edit', post_id=post.id))
+                return redirect(url_for(config.END_POINT_ADMIN_POST_EDIT, post_id=post.id))
         else:
             flash(app.config['FORM_ERROR'], 'error')
 
     available_tags = list(app.config['post_tags'].keys())
-    return render_template('post_edit.html', form=form, tags=available_tags)
+    return render_template('admin/post_edit.html', form=form, tags=available_tags)
 
 
-@app.route('/post/<int:post_id>/delete/', methods=['GET'])
+@app.route('/admin/post/<int:post_id>/delete/', methods=['GET'])
 @admin_required()
-def delete_post(post_id=None, redirect_target='index'):
+def admin_delete_post(post_id=None, redirect_target=config.END_POINT_INDEX):
     if Post.delete_post_by_id(post_id):
-        flash(app.config['POST_DELETE_SUCCESS'], 'success')
+        flash(config.POST_DELETE_SUCCESS, 'success')
     else:
-        flash(app.config['POSTS_DELETE_FAILED'], 'error')
+        flash(config.POST_DELETE_FAILED, 'error')
     return redirect(url_for(redirect_target))
 
 
@@ -89,7 +88,10 @@ def login():
     form = LoginForm(request.form)
 
     if request.form:
-        return Authentication.login(form)
+        if Authentication.login(form):
+            return redirect(url_for(config.END_POINT_INDEX))
+        else:
+            return redirect(url_for(config.END_POINT_LOGIN))
 
     return render_template('login.html', form=form)
 
