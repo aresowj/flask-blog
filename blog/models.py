@@ -10,9 +10,14 @@ from sqlalchemy.orm import relationship, backref, joinedload
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
-from flask import redirect, url_for, flash, session
+from flask import redirect, url_for, flash, session, current_app as app
 from werkzeug.security import generate_password_hash, check_password_hash
-from blog import app
+import config
+
+
+CATEGORY_ORDER_BY_NAME = 'name'
+CATEGORY_ORDER_BY_ID = 'id'
+CATEGORY_ORDER_BY_VERBOSE_NAME = 'verbose_name'
 
 
 Base = declarative_base()
@@ -58,7 +63,6 @@ def delete_instance_by_primary_key(model, primary_key):
     try:
         instance = app.db.session.query(model).filter(model.id == primary_key)
         app.db.session.delete(instance)
-        app.db.session.commit()
     except NoResultFound:
         logger.error("No instance found for %s with id=%s" % (model.__class__, primary_key))
         return False
@@ -75,27 +79,27 @@ def delete_instance_by_primary_key(model, primary_key):
 class Authentication(object):
     @staticmethod
     def login(form):
-        username = form.username.data
+        username = form.email.data
         password = form.password.data
 
         try:
-            user = app.db.session.query(User).filter(User.email == username).one()
+            user = User.get_user_by_email(username)
         except NoResultFound:
-            flash(app.config['LOGIN_FAILED_USER_NOT_EXIST'], 'error')
+            flash(config.LOGIN_FAILED_USER_NOT_EXIST, 'error')
         except MultipleResultsFound:
-            flash(app.config['LOGIN_FAILED_DUPLICATED_USER'], 'error')
+            flash(config.LOGIN_FAILED_DUPLICATED_USER, 'error')
         else:
             if not check_password_hash(user.password, password):
-                flash(app.config['LOGIN_FAILED_PASSWORD_NOT_MATCH'], 'error')
+                flash(config.LOGIN_FAILED_PASSWORD_NOT_MATCH, 'error')
             else:
                 # if password matched
                 session['permanent'] = form.remember.data
-                session['username'] = form.username.data
+                session['username'] = user.email
                 session['is_admin'] = user.is_admin
                 session['user_id'] = user.id
-                return redirect(url_for('index'))
+                return True
 
-        return redirect(url_for('login'))
+        return False
 
 
 class User(Base):
@@ -108,6 +112,15 @@ class User(Base):
     name = Column(String(255), nullable=False)
     is_admin = Column(Boolean, default=False)
 
+    @staticmethod
+    def sign_up_user(form):
+        if form.validate():
+            user = User()
+            form.populate_obj(user)
+            return user.update_user()
+
+        return False
+
     def get_user(self, user_id=None):
         raise NotImplementedError
 
@@ -117,7 +130,6 @@ class User(Base):
                 # no user id populated, adding new user
                 self.password = generate_password_hash(self.password, method='pbkdf2:sha256')
                 app.db.session.add(self)
-                app.db.session.commit()
                 return True
             except DBAPIError as e:
                 logger.exception(e)
@@ -131,13 +143,15 @@ class User(Base):
     def get_user_by_email(email):
         """get user by email
         :param email: the email of that user
-        :return:
+        :return: user instance
         """
         try:
             user = app.db.session.query(User).filter(User.email == email).one()
         except NoResultFound:
+            logger.error('No user found for email=%s' % email)
             return None
         except MultipleResultsFound:
+            logger.error('More than one user found for email=%s !' % email)
             return None
 
         return user
@@ -162,14 +176,20 @@ class Post(Base):
     @staticmethod
     def get_posts(limit, skip, tag_name=None, query=None):
         if tag_name:
-            total_count = app.db.session.query(Post).join(Post.tags).filter(Tag.name == tag_name).count()
-            posts = (app.db.session.query(Post).options(joinedload('tags'))
-                     .filter(Post.tags.any(Tag.name == tag_name)).order_by(Post.id.desc())[skip:skip + limit])
+            total_count = (app.db.session.query(Post).join(Post.tags)
+                           .filter(Tag.name == tag_name)
+                           .count())
+            posts = (app.db.session.query(Post)
+                     .options(joinedload('tags'))
+                     .filter(Post.tags.any(Tag.name == tag_name))
+                     .order_by(Post.id.desc())[skip:skip + limit])
         elif query:
             raise NotImplementedError
         else:
             total_count = app.db.session.query(Post.id).count()
-            posts = app.db.session.query(Post).options(joinedload('tags')).order_by(Post.id.desc())[skip:skip + limit]
+            posts = (app.db.session.query(Post)
+                     .options(joinedload('tags'))
+                     .order_by(Post.id.desc())[skip:skip + limit])
 
         return posts, total_count
 
@@ -199,7 +219,6 @@ class Post(Base):
                 post.last_modified = datetime.now()
 
             app.db.session.add(post)
-            app.db.session.commit()
 
             return True
         except DBAPIError as e:
@@ -208,8 +227,12 @@ class Post(Base):
 
     @staticmethod
     def delete_post_by_id(post_id):
-        app.db.session.delete(Post(post_id))
-        app.db.session.commit()
+        try:
+            app.db.session.delete(Post(post_id))
+            return True
+        except DBAPIError as e:
+            logger.exception(e)
+            return False
 
     @staticmethod
     def get_post_by_id(post_id=None):
@@ -220,7 +243,6 @@ class Post(Base):
         if post:
             post.view_count += 1
             app.db.session.add(post)
-            app.db.session.commit()
 
 
 class Attachment(Base):
@@ -250,6 +272,27 @@ class Category(Base):
     parent_id = Column(Integer, ForeignKey('categories.id'), default=None)
 
     children = relationship('Category')
+
+    @classmethod
+    def fetch_all_categories(cls):
+        """Get all categories (both parents and children) from
+        database for further assembly"""
+        return app.db.query(cls).all()
+
+    @classmethod
+    def fetch_all_top_categories(cls):
+        """Only fetch the categories with no parent"""
+        return app.db.query(cls).filter(Category.parent_id is None)
+
+    @classmethod
+    def fetch_all_children(cls, parent_id, order_by=CATEGORY_ORDER_BY_NAME):
+        """Fetch all children of a given parent category"""
+        return app.db.query(Category).filter(Category.parent_id == parent_id).order_by(order_by)
+
+    @classmethod
+    def fetch_category_by_id(cls, cate_id):
+        """Fetch a particular category with its primary key"""
+        return app.db.query(Category).get(cate_id)
 
 
 class Tag(Base):

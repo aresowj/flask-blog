@@ -44,22 +44,26 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li{% if request.url_rule.endpoint == 'index' %} class="active"{% endif %}><a href="{{ url_for('index') }}">Home</a></li>
-            <li{% if request.url_rule.endpoint == 'about' %} class="active"{% endif %}><a href="{{ url_for('about') }}">About</a></li>
+            <li{% if request.url_rule.endpoint == config.END_POINT_INDEX %} class="active"{% endif %}>
+              <a href="{{ url_for(config.END_POINT_INDEX) }}">Home</a>
+            </li>
+            <li{% if request.url_rule.endpoint == config.END_POINT_ABOUT %} class="active"{% endif %}>
+              <a href="{{ url_for(config.END_POINT_ABOUT) }}">About</a>
+            </li>
           </ul>
           {% if not session.username %}
           <ul class="nav navbar-nav pull-right">
-            <li><a href="{{ url_for('sign_up') }}">Sign Up</a></li>
-            <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li><a href="{{ url_for(config.END_POINT_SIGN_UP) }}">Sign Up</a></li>
+            <li><a href="{{ url_for(config.END_POINT_LOGIN) }}">Login</a></li>
           </ul>
           {% else %}
           <ul class="nav navbar-nav pull-right">
             <li><img src="" id="userAvatar" /></li>
             <li><a>Logged in as <span id="userEmail">{{ session.username }}</span></a></li>
             {% if session.is_admin %}
-            <li><a href="{{ url_for('post_edit') }}">Post</a></li>
+            <li><a href="{{ url_for(config.END_POINT_ADMIN_POST_EDIT) }}">Post</a></li>
             {% endif %}
-            <li><a href="{{ url_for('logout') }}">Logout</a></li>
+            <li><a href="{{ url_for(config.END_POINT_LOGOUT) }}">Logout</a></li>
           </ul>
           {% endif %}
         </div><!--/.nav-collapse -->
@@ -131,8 +135,8 @@
               <div class="row">
                 <div>
                   <ul class="list-group list-unstyled" id="manage-links">
-                    <li><a href="{{ url_for('posts_list') }}" class="list-group-item">Posts</a></li>
-                    <li><a href="{{ url_for('categories_list') }}" class="list-group-item">Categories</a></li>
+                    <li><a href="{{ url_for(config.END_POINT_ADMIN_POST_LIST) }}" class="list-group-item">Posts</a></li>
+                    <li><a href="{{ url_for(config.END_POINT_ADMIN_POST_LIST) }}" class="list-group-item">Categories</a></li>
                   </ul>
                 </div>
               </div>

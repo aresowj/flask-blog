@@ -1,3 +1,4 @@
+/htmlcov
 blog/local_settings.py
 __pycache__*
 *.pyc
@@ -8,4 +9,5 @@ venv/
 *.sock
 *.log
 migrations/
-
+.coverage
+.DS_Store

@@ -1,12 +1,11 @@
 # -*- coding: utf-8; -*-
 
-import json
-import markdown2
-from flask import render_template, url_for, request, flash, session, redirect, Markup
-from blog import app
-from .models import Post, User, Authentication
-from .utilities import admin_required, login_required, Pagination
-from .forms import PostEditForm, RegisterForm, LoginForm
+from flask import render_template, url_for, request, flash, session, redirect
+from models import Post, User, Authentication
+import config
+from utilities import admin_required, login_required, Pagination
+from forms import PostEditForm, RegisterForm, LoginForm
+from app import app
 
 
 @app.route('/', defaults={'page': 1, 'tag_name': None})
@@ -14,33 +13,33 @@ from .forms import PostEditForm, RegisterForm, LoginForm
 @app.route('/tag/<tag_name>', defaults={'page': 1})
 @app.route('/tag/<tag_name>/page-<int:page>')
 def index(page=1, tag_name=None):
-    posts, total_count = Post.get_posts(app.config['POSTS_PER_PAGE'],
-                                        (page - 1) * app.config['POSTS_PER_PAGE'], tag_name=tag_name)
+    posts, total_count = Post.get_posts(config.POSTS_PER_PAGE,
+                                        (page - 1) * config.POSTS_PER_PAGE, tag_name=tag_name)
     pagination = Pagination(page, app.config['POSTS_PER_PAGE'], total_count)
 
     return render_template('index.html', posts=posts, pagination=pagination, tag_name=tag_name)
 
 
-@app.route('/posts', defaults={'page': 1})
-@app.route('/posts/page-<int:page>')
+@app.route('/admin/post', defaults={'page': 1})
+@app.route('/admin/post/page-<int:page>')
 @admin_required()
-def posts_list(page=None):
+def admin_post_list(page=None):
     posts, total_count = Post.get_posts(app.config['POSTS_PER_PAGE'], (page - 1) * app.config['POSTS_PER_PAGE'])
     pagination = Pagination(page, app.config['POSTS_PER_PAGE'], total_count)
 
-    return render_template('posts.html', posts=posts, pagination=pagination)
+    return render_template('admin/posts.html', posts=posts, pagination=pagination)
 
 
-@app.route('/categories')
+@app.route('/admin/category')
 @admin_required()
-def categories_list():
+def admin_category_list():
     for cat in app.config['categories']:
         print(cat.children)
-    return render_template('categories_manage.html')
+    return render_template('admin/category.html')
 
 
-@app.route('/posts/<int:post_id>', methods=['GET'])
-@app.route('/posts/<int:post_id>/<string:post_name>', methods=['GET'])
+@app.route('/post/<int:post_id>', methods=['GET'])
+@app.route('/post/<int:post_id>/<string:post_name>', methods=['GET'])
 def post_view(post_id=None, post_name=None):
     post = Post.get_post_by_id(post_id)
     # update post view count when it is shown, calculate the view count in a simple way
@@ -49,13 +48,12 @@ def post_view(post_id=None, post_name=None):
     return render_template('post_view.html', post=post)
 
 
-@app.route('/posts/edit/<int:post_id>', methods=['GET', 'POST'])
-@app.route('/posts/add', methods=['GET', 'POST'])
+@app.route('/admin/posts/edit/<int:post_id>', methods=['GET', 'POST'])
+@app.route('/admin/posts/add', methods=['GET', 'POST'])
 @admin_required()
-def post_edit(post_id=None):
+def admin_post_edit(post_id=None):
     if post_id:
         post = Post.get_post_by_id(post_id)
-        print("Post %s " % post)
         success_message = app.config['POST_EDIT_SUCCEED']
     else:
         post = Post()
@@ -67,21 +65,21 @@ def post_edit(post_id=None):
         if form.validate():
             if Post.update_post(post, form):
                 flash(success_message, 'success')
-                return redirect(url_for('post_edit', post_id=post.id))
+                return redirect(url_for(config.END_POINT_ADMIN_POST_EDIT, post_id=post.id))
         else:
             flash(app.config['FORM_ERROR'], 'error')
 
     available_tags = list(app.config['post_tags'].keys())
-    return render_template('post_edit.html', form=form, tags=available_tags)
+    return render_template('admin/post_edit.html', form=form, tags=available_tags)
 
 
-@app.route('/post/<int:post_id>/delete/', methods=['GET'])
+@app.route('/admin/post/<int:post_id>/delete/', methods=['GET'])
 @admin_required()
-def delete_post(post_id=None, redirect_target='index'):
+def admin_delete_post(post_id=None, redirect_target=config.END_POINT_INDEX):
     if Post.delete_post_by_id(post_id):
-        flash(app.config['POST_DELETE_SUCCESS'], 'success')
+        flash(config.POST_DELETE_SUCCESS, 'success')
     else:
-        flash(app.config['POSTS_DELETE_FAILED'], 'error')
+        flash(config.POST_DELETE_FAILED, 'error')
     return redirect(url_for(redirect_target))
 
 
@@ -90,7 +88,10 @@ def login():
     form = LoginForm(request.form)
 
     if request.form:
-        return Authentication.login(form)
+        if Authentication.login(form):
+            return redirect(url_for(config.END_POINT_INDEX))
+        else:
+            return redirect(url_for(config.END_POINT_LOGIN))
 
     return render_template('login.html', form=form)
 
@@ -99,47 +100,25 @@ def login():
 @login_required()
 def logout():
     session.clear()
-    return redirect(url_for('index'))
+    return redirect(url_for(config.END_POINT_INDEX))
 
 
-@app.route('/signup', methods=['GET', 'POST'])
+@app.route('/sign_up', methods=['GET', 'POST'])
 def sign_up():
+    if not request.form:
+        return render_template('register.html', form=RegisterForm())
+
     form = RegisterForm(request.form)
-
-    if request.form and form.validate():
-        user = User()
-        form.populate_obj(user)
-        if user.update_user():
-            flash(app.config['REGISTRATION_SUCCEED'], 'success')
-            return redirect(url_for('login'))
-        else:
-            flash(app.config['REGISTRATION_FAILED'], 'error')
-            return redirect(url_for('sign_up'))
-
-    return render_template('register.html', form=form)
+    if User.sign_up_user(form):
+        login_form = LoginForm(request.form)
+        Authentication.login(login_form)
+        flash(config.REGISTRATION_SUCCEED, 'success')
+        return redirect(url_for(config.END_POINT_INDEX))
+    else:
+        flash(config.REGISTRATION_FAILED, 'error')
+        return redirect(url_for(config.END_POINT_SIGN_UP))
 
 
 @app.route('/about')
 def about():
     return render_template('about.html')
-
-
-@app.template_filter('parse_markdown')
-def parse_markdown(markdown_text):
-    return Markup(markdown2.markdown(markdown_text))
-
-
-# APIs
-@app.route('/api/v1/available_tags', methods=['GET'])
-def api_available_tags():
-    tag_keyword = request.args.get('term', None)
-    all_tags = list(app.config['post_tags'].keys())
-    if tag_keyword:
-        available_tags = [tag_name for tag_name in all_tags if tag_keyword.lower() in tag_name.lower()]
-    else:
-        available_tags = all_tags
-    return json.dumps(available_tags)
-
-if __name__ == '__main__':
-    run_app()
-

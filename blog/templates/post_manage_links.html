@@ -1,5 +1,5 @@
 {% if session.is_admin %}
   Manage:
-  <a href="{{ url_for('post_edit', post_id=post.id) }}">Edit</a> |
-  <a href="{{ url_for('delete_post', post_id=post.id, redirect_target=redirect_target) }}">Delete</a>
+  <a href="{{ url_for(config.END_POINT_ADMIN_POST_EDIT, post_id=post.id) }}">Edit</a> |
+  <a href="{{ url_for(config.END_POINT_ADMIN_POST_DELETE, post_id=post.id, redirect_target=redirect_target) }}">Delete</a>
 {% endif %}

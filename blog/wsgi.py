@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from blog import app
+from app import app
 from blog.models import Tag, Category, fetch_all_instances
 
 

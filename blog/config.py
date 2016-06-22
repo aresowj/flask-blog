@@ -1,7 +1,7 @@
 # -*- coding: utf-8; -*-
 
 import logging
-from .local_settings import *
+from local_settings import *
 
 
 ##################################################
@@ -57,7 +57,23 @@ LAST_PAGE = 'Last'
 POST_ADD_SUCCEED = 'New post successfully added.'
 POST_EDIT_SUCCEED = 'Post successfully edited.'
 POST_DELETE_SUCCESS = 'Post deleted.'
-POSTS_DELETE_FAILED = 'Post deletion failed.'
+POST_DELETE_FAILED = 'Post deletion failed.'
 PERMISSION_NOT_LOGGED_IN = 'You must be logged in first.'
 PERMISSION_NOT_HAVE = 'Sorry, you do not have permission.'
 FORM_ERROR = 'There\'s some error in your form.'
+
+# End point names
+END_POINT_INDEX = 'index'
+END_POINT_ABOUT = 'about'
+END_POINT_LOGIN = 'login'
+END_POINT_LOGOUT = 'logout'
+END_POINT_ADMIN_POST_LIST = 'admin_post_list'
+END_POINT_ADMIN_POST_EDIT = 'admin_post_edit'
+END_POINT_ADMIN_POST_DELETE = 'admin_delete_post'
+END_POINT_ADMIN_CATEGORY_LIST = 'admin_categories_list'
+END_POINT_SIGN_UP = 'sign_up'
+END_POINT_POST_VIEW = 'post_view'
+
+# Other keys
+SESSION_KEY_USERNAME = 'username'
+SESSION_KEY_IS_ADMIN = 'is_admin'

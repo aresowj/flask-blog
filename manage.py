@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from blog import app
+from blog.app import app
 from blog.models import Base
 from flask_migrate import Migrate, MigrateCommand
 from flask_script import Manager
