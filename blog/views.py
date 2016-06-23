@@ -48,8 +48,8 @@ def post_view(post_id=None, post_name=None):
     return render_template('post_view.html', post=post)
 
 
-@app.route('/admin/posts/edit/<int:post_id>', methods=['GET', 'POST'])
-@app.route('/admin/posts/add', methods=['GET', 'POST'])
+@app.route('/admin/post/edit/<int:post_id>', methods=['GET', 'POST'])
+@app.route('/admin/post/add', methods=['GET', 'POST'])
 @admin_required()
 def admin_post_edit(post_id=None):
     if post_id:

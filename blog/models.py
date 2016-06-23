@@ -273,11 +273,11 @@ class Category(Base):
 
     children = relationship('Category')
 
-    @classmethod
-    def fetch_all_categories(cls):
+    @staticmethod
+    def fetch_all_categories():
         """Get all categories (both parents and children) from
         database for further assembly"""
-        return app.db.query(cls).all()
+        return fetch_all_instances(Category)
 
     @classmethod
     def fetch_all_top_categories(cls):
