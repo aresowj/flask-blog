@@ -47,7 +47,12 @@ class UnitTestBase(unittest.TestCase):
         app.config['TESTING'] = True
         app.config['SERVER_NAME'] = DEFAULT_SERVER_NAME
         app.db = mock.Mock()
+        self.mock_fetch_all_instances = mock.patch('models.fetch_all_instances', return_value=[])
+        self.mock_fetch_all_instances.start()
         self.client = app.test_client()
+
+    def tearDown(self):
+        self.mock_fetch_all_instances.stop()
 
     def clear_all_cookies(self):
         self.client.get(url_for(config.END_POINT_LOGOUT))
