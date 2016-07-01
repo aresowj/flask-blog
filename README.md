@@ -2,7 +2,7 @@
 A small blog app written with Flask, Bootstrap and JQuery.
 Still under building, category and search function to be added.
 
-Latest Release: **v0.0.3** (May 29th, 2016)
+Latest Release: **v0.0.4** (June 26th, 2016)
 Author: Ares Ou
 
 ####  Database Initialization
