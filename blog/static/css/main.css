@@ -77,6 +77,10 @@ body > .container {
   padding: 10px;
 }
 
+#postMain p {
+  margin: 0 0 14px;
+}
+
 #postInfoDiv {
   padding-left: 10px;
   padding-right: 10px;
