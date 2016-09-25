@@ -31,7 +31,7 @@ MIN_PASSWORD_LENGTH = 8
 DEFAULT = None      # this is for flask-script turning on the debug option
 
 # global strings
-ABOUT_TITLE = 'About'
+ABOUT_TITLE = 'About Me'
 BLOG_NAME = 'Crayon Kingdom'
 BLOG_AUTHOR = 'Ares Ou'
 BLOG_DESCRIPTION = 'A tech, develop and reading blog.'

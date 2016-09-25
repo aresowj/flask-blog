@@ -1,38 +1,75 @@
 {% extends "base.html" %}
 
 {% block left_content %}
-<!-- left content column start -->
-  <div>
-    <h1 class="page-header">
-      {{ config['ABOUT_TITLE'] }}
-    </h1>
-  </div>
+    <!-- left content column start -->
+    <div>
+        <h1 class="page-header">
+            {{ config['ABOUT_TITLE'] }}
+        </h1>
+    </div>
 
-  {% include 'messages.html' %}
+    {% include 'messages.html' %}
 
-  <div class="row">
-    <div class="col-md-2 text-right">
-    <strong>Name:</strong>
-  </div>
-  <div class="col-md-4 text-left">
-    Ares Ou
-  </div>
-  <div class="row"></div>
-  <div class="col-md-2 text-right">
-    <strong>Occupation:</strong>
-  </div>
-  <div class="col-md-4 text-left">
-    Python Web Developer <br />
-    (Used to be a consultant at EY China, then an electrician.)
-  </div>
-  <div class="row"> </div>
-  <div class="col-md-6">
-    <p></p>
-    <p>
-      This blog is still under construction.
-    </p>
-  </div>
-  </div>
+    <div class="row">
+        <div class="col-md-12 postMain">
+            <p>
+                Hello, my name's Ares Ou, an experienced Software Engineer focused on back-end and system integration.
+                After graduating from GDUFS in China, I worked as a professional tax consultant at
+                <a href="http://www.ey.com/">Ernst & Young Shenzhen Branch</a> for a year.
+                <br /><br />
+                After that, I decided to chase my dream in software engineering and came to USA.
+                I love to solve problems with skills and passion.
+                Always keep learning all the time in order to get things done more efficiently. Please feel free to
+                email me.
+            </p>
+        </div>
+    </div>
 
-<!-- left content column end -->
+    <div class="row margin-top-15">
+        <div class="col-md-3 text-right">
+            <strong><i class="glyphicon glyphicon-briefcase"></i> Current</strong>
+        </div>
+        <div class="col-md-8 text-left">
+            Software Engineer @ Cisco WebEx Performance Lab
+        </div>
+    </div>
+
+    <div class="row margin-top-15">
+        <div class="col-md-3 text-right">
+            <strong><i class="glyphicon glyphicon-file"></i> Profiles</strong>
+        </div>
+        <div class="col-md-7 text-left">
+            Please see "My Links" on the right.
+        </div>
+    </div>
+
+    <div class="row margin-top-15">
+        <div class="col-md-3 text-right">
+            <strong><i class="glyphicon glyphicon-star"></i> Skills</strong>
+        </div>
+
+        <div class="col-md-8 text-left">
+            Python, Java, Django, Flask, Web Development, DevOps
+            <br />
+            <br />
+            HTML, CSS, JavaScript, jQuery, Bootstrap
+            <br />
+            <br />
+            Performance Testing, J2EE Application Monitoring, Testing Automation
+            <br />
+            <br />
+            MySQL, MongoDB, Cassandra
+        </div>
+    </div>
+
+    <div class="row margin-top-15">
+        <div class="col-md-3 text-right">
+            <strong><i class="glyphicon glyphicon-envelope"></i> Email</strong>
+        </div>
+        <div class="col-md-7 text-left">
+            <a href="mailto:aresowj@gmail.com">aresowj@gmail.com</a> (No agent please)
+        </div>
+    </div>
+
+    <!-- left content column end -->
 {% endblock %}
