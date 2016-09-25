@@ -3,36 +3,37 @@
 {% block page_title %}{{ config['LOGIN'] }}{% endblock %}
 
 {% block left_content %}
-<!-- left content column start -->
-  <div class="row">
-    <h1 class="page-header">
-      {{ config['LOGIN'] }}
-      <small>{{ config['LOGIN_PAGE_DESCRIPTION'] }}</small>
-    </h1>
-  </div>
+    <!-- left content column start -->
+    <div class="row">
+        <h1 class="page-header">
+            {{ config['LOGIN'] }}
+            <small>{{ config['LOGIN_PAGE_DESCRIPTION'] }}</small>
+        </h1>
+    </div>
 
-  {% include 'messages.html' %}
+    {% include 'messages.html' %}
 
-  <div class="row form-group" data-toggle="validator" role="form">
-    <form method="post" id="loginForm">
-      <div class="col-md-6">
-        {{ form.email.label(class="control-label margin-top-10") }}
-        {{ form.email(class="form-control", required="") }}
-      </div>
-      <div class="row"></div>
-      <div class="col-md-6">
-        {{ form.password.label(class="control-label margin-top-10") }}
-        {{ form.password(class="form-control", type="password", required="") }}
-      </div>
-      <div class="row"></div>
-      <div class="col-md-6">
-        <div class="checkbox"><label class="control-label">{{ form.remember() }} {{ form.remember.label.text}}</label></div>
-      </div>
-      <div class="row"></div>
-      <div class="col-md-6">
-        <button type="submit" id="submit" name="submit" class="btn btn-primary btn-block">Login</button>
-      </div>
-    </form>
-  </div>
-<!-- left content column end -->
+    <div class="row form-group" data-toggle="validator" role="form">
+        <form method="post" id="loginForm">
+            <div class="col-md-6">
+                {{ form.email.label(class="control-label margin-top-10") }}
+                {{ form.email(class="form-control", required="") }}
+            </div>
+            <div class="row"></div>
+            <div class="col-md-6">
+                {{ form.password.label(class="control-label margin-top-10") }}
+                {{ form.password(class="form-control", type="password", required="") }}
+            </div>
+            <div class="row"></div>
+            <div class="col-md-6">
+                <div class="checkbox"><label
+                        class="control-label">{{ form.remember() }} {{ form.remember.label.text }}</label></div>
+            </div>
+            <div class="row"></div>
+            <div class="col-md-6">
+                <button type="submit" id="submit" name="submit" class="btn btn-primary btn-block">Login</button>
+            </div>
+        </form>
+    </div>
+    <!-- left content column end -->
 {% endblock %}

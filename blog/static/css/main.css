@@ -60,6 +60,15 @@ body > .container {
   padding-top: 10px;
 }
 
+.padding-right-10 {
+  padding-right: 10px;
+}
+
+.padding-left-right-10 {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 #myLinks a {
   color: black;
 }
