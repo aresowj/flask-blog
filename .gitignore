@@ -11,3 +11,5 @@ venv/
 migrations/
 .coverage
 .DS_Store
+.vscode/
+
