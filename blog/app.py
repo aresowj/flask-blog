@@ -7,9 +7,9 @@ methods or procedures to the app instance.
 import logging
 import markdown2
 from flask import Flask, Markup
-import config
-from database import Database
-from models import Tag, Category, fetch_all_instances
+from blog import config
+from blog.database import Database
+from blog.models import Tag, Category, fetch_all_instances
 
 
 logger = logging.getLogger(__name__)

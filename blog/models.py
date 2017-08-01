@@ -12,7 +12,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from flask import redirect, url_for, flash, session, current_app as app
 from werkzeug.security import generate_password_hash, check_password_hash
-import config
+from blog import config
 
 
 CATEGORY_ORDER_BY_NAME = 'name'
