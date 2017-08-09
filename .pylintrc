@@ -1,2 +1,0 @@
-[General]
-init-hook='import sys; sys.path.append("C:\Users\Kagami\OneDrive\Programming\Python\flask-blog\")'
